@@ -1,0 +1,4 @@
+"scientific_object_id","scientific_object_label","position_id","has_beginning","has_end","is_instant","from_label","from_within_site","to_label","to_within_site","target_positions","comment"
+"http://opensilex.test/id/scientific-object/so-objet_1","morelle","http://opensilex.test/set/event/07d27093-55c5-46e1-8d48-b44458f13532",NA,"2022-10-21T13:17:15.517Z",TRUE,"greenhouse",NA,"greenhouse 0",NA,NA,"Move Demo"
+"http://opensilex.test/id/scientific-object/so-objet_1","morelle","http://opensilex.test/set/event/1573c72d-818c-417a-b70b-63f019282cc3",NA,"2022-09-08T14:36:37.005Z",TRUE,"growth chamber 1",NA,"Phenobean-2",NA,NA,NA
+"http://opensilex.test/id/scientific-object/so-objet_1","morelle","http://opensilex.test/id/event/19182073-03e1-44e0-ac26-70ef4f43c181",NA,"2022-09-02T00:00:00Z",TRUE,NA,NA,"Phenobean-2",NA,NA,NA

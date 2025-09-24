@@ -1,0 +1,19 @@
+Package: opensilexR
+Type: Package
+Title: R Interface for OpenSILEX Agricultural Data Management System
+Version: 0.1.0
+Authors@R: person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre"))
+Description: Provides functions to interact with OpenSILEX instances, including authentication, experiment listing, and URI-name mapping management for agricultural and scientific data.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Imports:
+    httr,
+    jsonlite,
+    dplyr,
+    utils
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+

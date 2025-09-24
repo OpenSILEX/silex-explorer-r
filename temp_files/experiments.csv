@@ -1,0 +1,14 @@
+"id","label","start_date","end_date","species","project","facilities"
+"http://opensilex.test/id/experiment/agivoltaique_lusignan_1","Agivoltaique lusignan 1","2023-01-01",NA,NA,NA,"Parcelle 1"
+"http://opensilex.test/id/experiment/eppn2020_jra1_4_obj3","EPPN2020_JRA1_4_OBJ3","2020-09-01",NA,"Zea mays","EPPN2020",NA
+"http://opensilex.test/id/experiment/exp_test","exp_test","2022-09-01","2022-09-30","Solanum nigrum","CLIGDI",NA
+"http://opensilex.test/id/experiment/ferme_uclouvain_moutarde_datesemis","Ferme_UCLouvain_Moutarde_DateSemis","2021-04-02",NA,"Moutarde blanche","Farm For Good moutarde","Corroy 18-19"
+"http://opensilex.test/id/experiment/ferme_uclouvain_moutarde_varietal","Ferme_UCLouvain_Moutarde_Varietal","2021-04-15",NA,"Moutarde blanche","Farm For Good moutarde","Corroy 18-19"
+"http://opensilex.test/id/experiment/lsp_planting_1055551","LSP_planting_1055551","2016-04-01","2019-03-01","Pommier","Ontology-based Visual Analytics for Agriculture",NA
+"http://www.phenome-fppn.fr/diaphen/DIA2017-05-19","MAU17-PG","2017-05-19","2017-09-22","Zea mays","French plant phenomic network (FPPN)","mac3"
+"http://opensilex.test/id/experiment/phenobean_2021","PHENOBEAN_2021","2021-06-06","2021-06-26","Arabidopsis","CLIGDI","growth chamber 1"
+"http://opensilex.test/id/experiment/sk_test_duplication","SK_TEST","2024-10-01",NA,NA,NA,NA
+"http://opensilex.test/id/experiment/sweetpotatoviruses_2018","SweetPotatoViruses_2018","2018-07-01","2018-07-30","sweetpotato","NextGen Phytosanitation","PlantScreen™ Compact System"
+"http://opensilex.test/id/experiment/test","test","2024-10-06",NA,NA,"French plant phenomic network (FPPN)",NA
+"http://opensilex.test/id/experiment/use_case_vineyard","Use Case Vineyard","2022-07-28","2022-08-05",NA,NA,"Quinta da Saudade - Palato - Douro"
+"http://www.phenome-fppn.fr/m3p/ARCH2017-03-30","ZA17","2017-03-30","2017-06-30","Moutarde blanche","French plant phenomic network (FPPN)","greenhouse 1, greenhouse, greenhouse 0"
