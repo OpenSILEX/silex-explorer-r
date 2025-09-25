@@ -9,11 +9,10 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/OpenSILEX/silex-explorer-r)
 
 [Documentation](https://opensilex.org/documentation) • 
-[Installation Guide](#installation) • 
-[Quick Start](#quickstart) • 
+[Installation Guide](#️-installation) • 
+[Quick Start](#-quick-start) • 
 [Examples](./examples) • 
-[Contributing](#contributing)
-
+[Contributing](#-contributing)
 ---
 
 </div>
