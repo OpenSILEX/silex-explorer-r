@@ -10,7 +10,7 @@
 
 [Documentation](https://opensilex.org/documentation) • 
 [Installation Guide](#installation) • 
-[Quick Start](#quick-start) • 
+[Quick Start](#quickstart) • 
 [Examples](./examples) • 
 [Contributing](#contributing)
 
@@ -283,24 +283,7 @@ opensilex-r-package/
 | `lsExpByFacility()` | List facility experiments | `session`, `facility_uri` |
 | `lsDeviceByFacility()` | List facility devices | `session`, `facility_uri` |
 
-## 🔧 Advanced Usage
 
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch:
-```bash
-git checkout -b feature/amazing-feature
-```
-3. Make your changes
-4. Run tests:
-```R
-devtools::test()
-```
-5. Submit a Pull Request
 
 ### Development Guidelines
 - Follow [tidyverse style guide](https://style.tidyverse.org/)
@@ -322,24 +305,24 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file.
     url = {https://forgemia.inra.fr/OpenSILEX/opensilex-graphql}
 }
 ```
-## **Contributing**
+## 🤝 Contributing
 
-Contributions are welcome!
+We welcome contributions! Please follow these steps:
 
-1. Fork the repository.  
-2. Create a branch for your changes:  
-   ```bash
-   git checkout -b feature/my-new-feature
-3. Commit your changes and push them:
-   ```bash
-   git push origin feature/my-new-feature
-4. Open a pull request.
-## 🆘 Support
+1. Fork the repository
+2. Create a feature branch:
+```bash
+git checkout -b feature/amazing-feature
+```
+3. Make your changes
+4. Run tests:
+```R
+devtools::test()
+```
+5. Submit a Pull Request
 
-- 📚 [Documentation](https://opensilex.org/documentation)
-- 🐛 [Issue Tracker](https://forgemia.inra.fr/OpenSILEX/opensilex-graphql/-/issues)
-- 💬 [Community Forum](https://opensilex.org/forum)
-- 
+
+
 
 ---
 
