@@ -1,6 +1,6 @@
 <div align="center">
 
-# OpensilexR
+# SilexExplorerR
 ###  R Interface for OpenSILEX Platform
 
 [![R](https://img.shields.io/badge/R-%3E%3D%204.0.0-blue?style=flat-square&logo=r)](https://www.r-project.org/)
@@ -20,7 +20,7 @@
 
 ## 📚 Overview
 
-**OpensilexR** is an R interface designed for seamless interaction with OpenSILEX platforms, enabling researchers to efficiently manage and analyze scientific experimental data. This package provides comprehensive tools for:
+**SilexExplorerR** is an R interface designed for seamless interaction with OpenSILEX platforms, enabling researchers to efficiently manage and analyze scientific experimental data. This package provides comprehensive tools for:
 
 - 🧪 Experimental data management
 - 📊 Data visualization and analysis
@@ -177,7 +177,7 @@ system("gcc --version")  # Ensure build tools are available
 # Install devtools
 if (!require("devtools")) install.packages("devtools")
 
-# Install OpensilexR
+# Install SilexExplorerR
 devtools::install_git(
     "https://forgemia.inra.fr/OpenSILEX/opensilex-graphql/package-r.git",
     dependencies = TRUE,
@@ -203,7 +203,7 @@ install.packages(c(
 
 ### Basic Workflow
 ```R
-library(OpensilexR)
+library(SilexExplorerR)
 library(dplyr)
 library(ggplot2)
 
@@ -315,8 +315,8 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file.
 ## 🌟 Citation
 
 ```bibtex
-@software{opensilexr2024,
-    title = {OpensilexR: Advanced R Interface for OpenSILEX Platform},
+@software{SilexExplorerR2024,
+    title = {SilexExplorerR: Advanced R Interface for OpenSILEX Platform},
     author = {OpenSILEX Team},
     year = {2024},
     url = {https://forgemia.inra.fr/OpenSILEX/opensilex-graphql}
@@ -347,6 +347,6 @@ Contributions are welcome!
 
 Made with ❤️ by the OpenSILEX Team
 
-[↑ Back to Top](#opensilexr)
+[↑ Back to Top](#SilexExplorerR)
 
 </div>
