@@ -13,7 +13,29 @@
 #' @return A data frame containing experiment information.
 #'
 #' @export
-
+#' @examples
+#' \dontrun{
+#' # Assuming session is already created by login function
+#' # List all experiments
+#' all_experiments <- lsExp(session)
+#' print(all_experiments)
+#'
+#' # List experiments active on a specific date
+#' active_experiments <- lsExp(session, date = "2025-01-10")
+#' print(active_experiments)
+#'
+#' # List experiments filtered by project
+#' expe_by_project <- lsExp(session, projet = "EPPN2020")
+#' print(expe_by_project)
+#'
+#' # List experiments filtered by species
+#' expe_by_species <- lsExp(session, Species = "Zea mays")
+#' print(expe_by_species)
+#'
+#' # List experiments filtered by both species and project
+#' expe_by_species_project <- lsExp(session, date = "2017-05-18", projet = "French plant phenomic network (FPPN)", Species = "Zea mays")
+#' print(expe_by_species_project)
+#' }
 lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_dir = NULL) {
   # Validate inputs
   if (!inherits(session, "opensilex_connection")) {
@@ -90,10 +112,13 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
 
     # Apply filters
     if (!is.null(Species)) {
-      experiments_df <- dplyr::filter(experiments_df, grepl(Species, species, fixed = TRUE))
+      experiments_df <- dplyr::filter(experiments_df,
+                                      sapply(strsplit(species, "; "), function(x) any(x == Species)))
     }
+
     if (!is.null(projet)) {
-      experiments_df <- dplyr::filter(experiments_df, grepl(projet, project, fixed = TRUE))
+      experiments_df <- dplyr::filter(experiments_df,
+                                      sapply(strsplit(project, "; "), function(x) any(x == projet)))
     }
     if (!is.null(date)) {
       experiments_df <- dplyr::filter(

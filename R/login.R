@@ -7,6 +7,14 @@
 #'
 #' @return A session token (or list) on success
 #' @export
+#'
+#' #' @examples
+#' # Exemple d'utilisation de la fonction login
+#' session <- login(id = "ton_email@exemple.com",
+#'                  password = "ton_mot_de_passe",
+#'                  instance = "http://localhost:8080",
+#'                  urlGraphql = "http://localhost:8080/graphql")
+#' print(session$token)
 login <- function(id, password, instance, urlGraphql, uri_csv = "uri_name.csv") {
   if (!all(is.character(c(id, password, instance, urlGraphql)))) {
     stop("All arguments must be character strings")
