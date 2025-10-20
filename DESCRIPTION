@@ -13,6 +13,17 @@ Imports:
     httr,
     jsonlite,
     dplyr,
+    tidyr,
+    purrr,
+    future,
+    furrr,
+    tibble,
+    readr,
+    ggplot2,
+    patchwork,
+    scales,
+    lubridate,
+    rlang,
     utils
 Suggests:
     testthat (>= 3.0.0)
