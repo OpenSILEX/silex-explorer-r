@@ -143,21 +143,6 @@ print(active_experiments)
 - Data frame output format
 - Integrated facility mapping
 
-### 📊 Data Analytics
-```R
-# Retrieve and analyze data
-data <- lsDataByOs(session, object_uri = "object_uri") %>%
-    group_by(variable) %>%
-    summarise(
-        mean_value = mean(value, na.rm = TRUE),
-        sd_value = sd(value, na.rm = TRUE),
-        n_observations = n()
-    )
-```
-- Statistical analysis tools
-- Time-series processing
-- Data aggregation
-- Visualization support
 
 ## ⚙️ Installation
 
@@ -183,27 +168,12 @@ devtools::install_git(
 )
 ```
 
-### Core Dependencies
-```R
-# Install core packages
-install.packages(c(
-    "httr",      # HTTP client
-    "jsonlite",  # JSON parsing
-    "dplyr",     # Data manipulation
-    "tidyr",     # Data tidying
-    "lubridate", # Date handling
-    "ggplot2",   # Visualization
-    "testthat"   # Testing
-))
-```
-
 ## 🚀 Quick Start
 
 ### Basic Workflow
 ```R
 library(SilexExplorerR)
-library(dplyr)
-library(ggplot2)
+
 
 # 1. Initialize session
 session <- login(
@@ -262,7 +232,7 @@ opensilex-r-package/
 ### Facility Operations
 | Function | Description | Parameters |
 |----------|-------------|------------|
-| `lsDeviceByFacility()` | List facility devices | `session`, `facility_uri` |
+| `lsEnvDataByFacility()` | Environnemental data of facility | `session`, `facility_uri` |
 
 
 
