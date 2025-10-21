@@ -133,11 +133,10 @@ session <- login(
 # List all experiments
 experiments <- lsExp(session)
 
-# Filter experiments by facility
-facility_experiments <- lsExpByFacility(
-    session,
-    facility_uri = "facility_uri"
-)
+# List experiments active on a specific date
+active_experiments <- lsExp(session, date = "2025-01-10")
+print(active_experiments)
+ 
 ```
 - Comprehensive experiment listing
 - Advanced filtering options
@@ -217,22 +216,6 @@ session <- login(
 # 2. Retrieve experiments
 experiments <- lsExp(session)
 
-# 3. Get scientific objects
-objects <- lsOsByExp(
-    session,
-    experiment_uri = experiments$uri[1]
-)
-
-# 4. Analyze data
-results <- objects %>%
-    group_by(type) %>%
-    summarise(count = n())
-
-# 5. Visualize
-ggplot(results, aes(x = type, y = count)) +
-    geom_bar(stat = "identity") +
-    theme_minimal() +
-    labs(title = "Object Distribution by Type")
 ```
 
 ## 📂 Project Structure
@@ -279,7 +262,6 @@ opensilex-r-package/
 ### Facility Operations
 | Function | Description | Parameters |
 |----------|-------------|------------|
-| `lsExpByFacility()` | List facility experiments | `session`, `facility_uri` |
 | `lsDeviceByFacility()` | List facility devices | `session`, `facility_uri` |
 
 
