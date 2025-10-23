@@ -1,19 +1,43 @@
 #' Retrieve Scientific Objects by Experiment Label
 #'
 #' This function fetches scientific objects from an OpenSILEX session by experiment label,
-#' with filtering options.
+#' allowing filtering by object type, factor levels, and germplasm information.
 #'
-#' @param session An opensilex_connection object.
-#' @param experiment_label Character string, experiment label.
-#' @param obj_type Optional character to filter object types.
-#' @param factor_levels Optional vector of factor levels to filter.
-#' @param germplasm_type Optional germplasm type filter.
-#' @param germplasm_name Optional germplasm name filter.
-#' @param output_dir Optional directory to save output CSV.
+#' @param session An `opensilex_connection` object.
+#' @param experiment_label Character string. Label of the experiment to retrieve scientific objects from.
+#' @param obj_type Optional character string specifying the type of scientific object to filter (exact match).
+#' @param factor_levels Optional character vector of factor-level filters. Each element should follow the format `"FactorName.Level"`.
+#' Multiple factors can be provided.
+#' @param germplasm_type Optional character string specifying the germplasm type to filter (case-insensitive).
+#' @param germplasm_name Optional character string specifying the germplasm name to filter (case-insensitive).
+#' Requires `germplasm_type` to be specified.
+#' @param output_dir Optional character string specifying a directory path where the output CSV file will be saved.
+#' If `NULL`, results are only displayed.
 #' @param verbose Logical, whether to print progress messages.
 #' @param check_consistency Logical, whether to check URI-label consistency.
-#' @return Data frame of scientific objects matching criteria.
+#' @return A data frame containing scientific objects matching the specified filters.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Assuming 'session' is already created using the login() function
+#'
+#' # Retrieve scientific objects for an experiment
+#' objects <- lsOsByExp(session, experiment_label = "ZA17")
+#' print(objects)
+#'
+#' # Filter by object type
+#' objects_type <- lsOsByExp(session, experiment_label = "ZA17", obj_type = "Plant")
+#' print(objects_type)
+#'
+#' # Filter by a factor level
+#' objects_factor <- lsOsByExp(session, experiment_label = "ZA17", factor_levels = c("Irrigation.WD"))
+#' print(objects_factor)
+#'
+#' # Filter by germplasm type and name
+#' objects_germplasm <- lsOsByExp(session, experiment_label = "ZA17",
+#'                                germplasm_type = "Variety", germplasm_name = "testVariety")
+#' print(objects_germplasm)
+#' }
 lsOsByExp <- function(session, experiment_label,
                       obj_type = NULL,
                       factor_levels = NULL,
@@ -172,47 +196,101 @@ lsOsByExp <- function(session, experiment_label,
 
   # Filtering by object type
   if (!is.null(obj_type)) {
-    df <- df[grepl(obj_type, df$type, ignore.case = TRUE), ]
+    df <- df[df$type == obj_type, ]
   }
+
 
   # Filtering by factor levels (improved for factor names with dots)
   if (!is.null(factor_levels)) {
+    # Start with a logical vector of TRUE (i.e., no filtering applied yet)
+    filter_condition <- rep(TRUE, nrow(df))
+
     for (fl in factor_levels) {
       parts <- unlist(strsplit(fl, "\\."))
       if (length(parts) >= 2) {
         level <- tail(parts, 1)
         factor_name <- paste(parts[-length(parts)], collapse = ".")
+
+        # Check if the factor exists in the data
         if (factor_name %in% names(df)) {
-          df <- df[df[[factor_name]] == level, ]
+          # Check if the level exists in the factor values
+          if (level %in% unique(df[[factor_name]])) {
+            # Update filter_condition to include only rows that match the current condition
+            filter_condition <- filter_condition & (df[[factor_name]] == level)
+          } else {
+            warning("Level '", level, "' for factor '", factor_name, "' does not exist in the data.")
+            filter_condition <- rep(FALSE, nrow(df))  # Return an empty dataframe
+            break  # Stop further filtering since there's no matching level
+          }
         } else {
-          warning("Factor '", factor_name, "' not found in data.")
+          warning("Factor '", factor_name, "' does not exist in the data.")
+          filter_condition <- rep(FALSE, nrow(df))  # Return an empty dataframe
+          break  # Stop further filtering since there's no matching factor
         }
       }
     }
+
+    # Apply the final filter condition
+    df <- df[filter_condition, ]
   }
-  
+
 
   # Advanced filtering by germplasm type and optionally germplasm name
   if (!is.null(germplasm_type)) {
-    if (!is.null(germplasm_name)) {
-      # Step 1: Filter by germplasm type and germplasm name in any relevant columns
-      name_cols <- grep("^(germplasm_label_|Germplasm_)", names(df), value = TRUE)
-      type_cols <- grep(paste0("^", germplasm_type), names(df), value = TRUE)
-      relevant_cols <- unique(c(name_cols, type_cols))
 
-      if (length(relevant_cols) > 0) {
-        name_filter <- apply(df[relevant_cols], 1, function(row) germplasm_name %in% row)
-        df <- df[name_filter, ]
+    # Get germplasm_type and germplasm_label columns (case-insensitive)
+    type_cols <- grep("^germplasm_type", names(df), value = TRUE, ignore.case = TRUE)
+    label_cols <- grep("^germplasm_label", names(df), value = TRUE, ignore.case = TRUE)
+
+    if (!is.null(germplasm_name)) {
+      # Initialize an empty logical filter
+      match_filter <- rep(FALSE, nrow(df))
+
+      # --- CASE 1: Match via germplasm_type_X / germplasm_label_X pairs ---
+      for (type_col in type_cols) {
+        suffix <- sub("^germplasm_type", "", type_col, ignore.case = TRUE)
+        label_col <- paste0("germplasm_label", suffix)
+
+        if (label_col %in% names(df)) {
+          type_match <- tolower(df[[type_col]]) == tolower(germplasm_type)
+          label_match <- tolower(df[[label_col]]) == tolower(germplasm_name)
+          match_filter <- match_filter | (type_match & label_match)
+        }
       }
+
+      # --- CASE 2: Match via columns starting with the germplasm_type itself ---
+      type_specific_cols <- grep(paste0("^", germplasm_type), names(df),
+                                 value = TRUE, ignore.case = TRUE)
+
+      if (length(type_specific_cols) > 0) {
+        type_specific_match <- apply(df[type_specific_cols], 1, function(row) {
+          any(tolower(row) == tolower(germplasm_name))
+        })
+        match_filter <- match_filter | type_specific_match
+      }
+
+      # Apply combined filter
+      df <- df[match_filter, , drop = FALSE]
+
     } else {
-      # Step 2: Filter only by germplasm type in all germplasm_type columns
-      type_cols <- grep("^germplasm_type_", names(df), value = TRUE)
+      # --- CASE: Filter only by germplasm_type ---
       if (length(type_cols) > 0) {
-        type_filter <- apply(df[type_cols], 1, function(row) germplasm_type %in% row)
-        df <- df[type_filter, ]
+        type_filter <- apply(df[type_cols], 1, function(row) {
+          any(tolower(row) == tolower(germplasm_type))
+        })
+        df <- df[type_filter, , drop = FALSE]
+      } else {
+        warning("No germplasm_type columns found in the data.")
+        df <- df[FALSE, , drop = FALSE]
       }
     }
+
+  } else if (!is.null(germplasm_name)) {
+    # --- CASE: germplasm_name provided without germplasm_type ---
+    warning("You have provided a germplasm_name, but you must also specify a germplasm_type for filtering.")
+    df <- df[FALSE, , drop = FALSE]
   }
+
 
 
   # URI-Name consistency check (if applicable)
