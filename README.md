@@ -133,32 +133,16 @@ session <- login(
 # List all experiments
 experiments <- lsExp(session)
 
-# Filter experiments by facility
-facility_experiments <- lsExpByFacility(
-    session,
-    facility_uri = "facility_uri"
-)
+# List experiments active on a specific date
+active_experiments <- lsExp(session, date = "2025-01-10")
+print(active_experiments)
+ 
 ```
 - Comprehensive experiment listing
 - Advanced filtering options
 - Data frame output format
 - Integrated facility mapping
 
-### 📊 Data Analytics
-```R
-# Retrieve and analyze data
-data <- lsDataByOs(session, object_uri = "object_uri") %>%
-    group_by(variable) %>%
-    summarise(
-        mean_value = mean(value, na.rm = TRUE),
-        sd_value = sd(value, na.rm = TRUE),
-        n_observations = n()
-    )
-```
-- Statistical analysis tools
-- Time-series processing
-- Data aggregation
-- Visualization support
 
 ## ⚙️ Installation
 
@@ -184,27 +168,12 @@ devtools::install_git(
 )
 ```
 
-### Core Dependencies
-```R
-# Install core packages
-install.packages(c(
-    "httr",      # HTTP client
-    "jsonlite",  # JSON parsing
-    "dplyr",     # Data manipulation
-    "tidyr",     # Data tidying
-    "lubridate", # Date handling
-    "ggplot2",   # Visualization
-    "testthat"   # Testing
-))
-```
-
 ## 🚀 Quick Start
 
 ### Basic Workflow
 ```R
 library(SilexExplorerR)
-library(dplyr)
-library(ggplot2)
+
 
 # 1. Initialize session
 session <- login(
@@ -217,22 +186,6 @@ session <- login(
 # 2. Retrieve experiments
 experiments <- lsExp(session)
 
-# 3. Get scientific objects
-objects <- lsOsByExp(
-    session,
-    experiment_uri = experiments$uri[1]
-)
-
-# 4. Analyze data
-results <- objects %>%
-    group_by(type) %>%
-    summarise(count = n())
-
-# 5. Visualize
-ggplot(results, aes(x = type, y = count)) +
-    geom_bar(stat = "identity") +
-    theme_minimal() +
-    labs(title = "Object Distribution by Type")
 ```
 
 ## 📂 Project Structure
@@ -279,8 +232,7 @@ opensilex-r-package/
 ### Facility Operations
 | Function | Description | Parameters |
 |----------|-------------|------------|
-| `lsExpByFacility()` | List facility experiments | `session`, `facility_uri` |
-| `lsDeviceByFacility()` | List facility devices | `session`, `facility_uri` |
+| `lsEnvDataByFacility()` | Environnemental data of facility | `session`, `facility_uri` |
 
 
 
