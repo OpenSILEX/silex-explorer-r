@@ -94,21 +94,19 @@ lsOsTypeByExp <- function(session, experiment_label, output_dir = NULL, verbose 
     return(data.frame())
   }
 
-  # Extract types and count them
-  types <- sapply(os_result$data$ScientificObject, function(x) x$type)
-  types_df <- as.data.frame(table(types), stringsAsFactors = FALSE)
-  colnames(types_df) <- c("uri", "count")
+  # Step 3: Extract unique types and create URI-name pairs
+  types <- unique(sapply(os_result$data$ScientificObject, function(x) x$type))
 
-  # Extract name from URI and update CSV
-  types_df$name <- vapply(types_df$uri, function(uri) {
-    name_extracted <- sub(".*#", "", uri)
-    insertUri_Name(uri, name_extracted)
-    return(name_extracted)
-  }, character(1))
+  # Create the tibble with uri and name columns
+  uri_name_pairs <- tibble::tibble(
+    uri = types,
+    name = vapply(types, function(uri) sub(".*#", "", uri), character(1))
+  )
 
-  types_df <- types_df[, c("uri", "name")]
+  # Insert all URI-name pairs in bulk
+  insertUri_Name(uri_name_pairs)
 
-  # Step 3: Optional CSV export
+  # Step 4: Optional CSV export
   if (!is.null(output_dir)) {
     if (!dir.exists(output_dir)) {
       dir.create(output_dir, recursive = TRUE)
@@ -117,11 +115,11 @@ lsOsTypeByExp <- function(session, experiment_label, output_dir = NULL, verbose 
 
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
     output_file <- file.path(output_dir, paste0("object_types_", timestamp, ".csv"))
-    write.csv(types_df, file = output_file, row.names = FALSE)
+    write.csv(uri_name_pairs, file = output_file, row.names = FALSE)
 
     if (verbose) message("Type summary saved to ", output_file)
   }
 
-  return(types_df)
+  # Return the final uri_name_pairs tibble
+  return(uri_name_pairs)
 }
-

@@ -135,7 +135,7 @@ lsOsByExp <- function(session, experiment_label,
   objects <- purrr::map(result$data$ScientificObject, function(obj) {
     base <- list(
       uri = obj[["_id"]],
-      label = obj$label,
+      name = obj$label,
       type = if (!is.null(obj[["_type"]])) paste(obj[["_type"]], collapse = "; ") else ""
     )
 
@@ -292,12 +292,9 @@ lsOsByExp <- function(session, experiment_label,
   }
 
 
+  # URI-Name
+  insertUri_Name(df[, c("uri", "name")])
 
-  # URI-Name consistency check (if applicable)
-  if (exists("uri_name")) {
-    purrr::walk2(df$uri, df$label, insertUri_Name)
-    if (check_consistency) UriCons()
-  }
 
   # Optional export
   if (!is.null(output_dir)) {

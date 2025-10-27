@@ -90,9 +90,19 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
       return(data.frame())
     }
 
+    # Process results and prepare all URI-name pairs at once
+    all_uri_name_pairs <- purrr::map_df(result$data$Experiment, function(exp) {
+      tibble::tibble(
+        uri = exp$`_id`,  # URI is taken from the experiment's _id
+        name = exp$label %||% ""  # Name is taken from the experiment's label
+      )
+    })
+
+    # Call insertUri_Name to insert all URI-name pairs at once
+    insertUri_Name(all_uri_name_pairs)
+
     # Process results
     experiments_df <- purrr::map_df(result$data$Experiment, function(exp) {
-      insertUri_Name(exp$`_id`, exp$label)
       tibble::tibble(
         id = exp$`_id`,
         label = exp$label %||% "",
@@ -127,9 +137,6 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
         is.na(end_date) | end_date == "" | as.Date(end_date) >= date
       )
     }
-
-    # Run URI consistency check
-    UriCons()
 
     # Write to CSV only if output_dir is specified
     if (!is.null(output_dir)) {

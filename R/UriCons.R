@@ -1,38 +1,53 @@
 #' Check URI-Name Consistency
 #'
-#' Displays duplicate names in the URI-name mapping without modifying them.
+#' Checks for inconsistencies in the uri_name mapping:
+#' - URIs associated with multiple names
+#' - Names associated with multiple URIs
+#' Displays warnings but does not modify the data.
 #'
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' initUriName()
-#' UriCons()
-#' }
 UriCons <- function() {
   if (is.null(.pkg_env$uri_name)) {
     stop("The uri_name data frame is not initialized. Call initUriName() first.")
   }
 
-  name_duplicates <- .pkg_env$uri_name %>%
-    dplyr::group_by(.data$name) %>%
-    dplyr::filter(dplyr::n() > 1) %>%
-    dplyr::arrange(.data$name)
+  uri_name_df <- .pkg_env$uri_name
 
-  if (nrow(name_duplicates) > 0) {
-    message("Duplicate names detected:")
+  # URIs with multiple names
+  uri_counts <- uri_name_df %>%
+    dplyr::group_by(.data$uri) %>%
+    dplyr::summarise(n_names = dplyr::n_distinct(.data$name), .groups = "drop") %>%
+    dplyr::filter(n_names > 1)
 
-    duplicate_groups <- name_duplicates %>%
-      dplyr::group_by(.data$name) %>%
-      dplyr::group_split()
-
-    for (group in duplicate_groups) {
-      message("\nDuplicate entries for name: ", group$name[1])
-      for (i in seq_len(nrow(group))) {
-        cat(sprintf("%d. URI: %s, Name: %s\n", i, group$uri[i], group$name[i]))
-      }
+  if (nrow(uri_counts) > 0) {
+    for (u in uri_counts$uri) {
+      names_for_uri <- uri_name_df %>%
+        dplyr::filter(.data$uri == u) %>%
+        dplyr::pull(.data$name) %>%
+        unique()
+      warning(sprintf("⚠️ Inconsistency: URI '%s' is associated with multiple names: %s.",
+                      u, paste(names_for_uri, collapse = ", ")))
     }
-  } else {
-    message("No duplicate names found in the URI-Name mappings.")
+  }
+
+  # Names with multiple URIs
+  name_counts <- uri_name_df %>%
+    dplyr::group_by(.data$name) %>%
+    dplyr::summarise(n_uris = dplyr::n_distinct(.data$uri), .groups = "drop") %>%
+    dplyr::filter(n_uris > 1)
+
+  if (nrow(name_counts) > 0) {
+    for (n in name_counts$name) {
+      uris_for_name <- uri_name_df %>%
+        dplyr::filter(.data$name == n) %>%
+        dplyr::pull(.data$uri) %>%
+        unique()
+      warning(sprintf("⚠️ Inconsistency: Name '%s' is associated with multiple URIs: %s.",
+                      n, paste(uris_for_name, collapse = ", ")))
+    }
+  }
+
+  if (nrow(uri_counts) == 0 && nrow(name_counts) == 0) {
+    message("No inconsistencies found in the URI-Name mappings.")
   }
 }
