@@ -11,7 +11,18 @@
 #' @param check_consistency Logical. Whether to check URI-name mapping consistency after retrieval.
 #' @return A tibble with columns `uri`, `name`, `entity`, `characteristic`, `method`, and `unit`.
 #' @export
-
+#' @examples
+#' \dontrun{
+#' # Assuming session is already created by login function
+#'
+#' # Example 1: Retrieve variables for an experiment
+#' variables_by_exp <- lsVarByExp(session, experiment_label = "experiment_001")
+#' print(variables_by_exp)
+#'
+#' # Example 2: Retrieve variables and save to a specific output directory
+#' variables_by_exp_with_csv <- lsVarByExp(session, experiment_label = "experiment_002", output_dir = "/path/to/save")
+#' print(variables_by_exp_with_csv)
+#' }
 lsVarByExp <- function(session,
                        experiment_label,
                        output_dir = NULL,
@@ -28,38 +39,14 @@ lsVarByExp <- function(session,
 
   `%||%` <- function(x, y) if (!is.null(x)) x else y
 
-  # --- Step 1: Construct experiment_uri from label and startDate
-  if (verbose) message("Fetching experiment start date for label: ", experiment_label)
+  # --- Step 1: get experiment URI from uri_name table
 
-  gql_query <- sprintf('
-    query {
-      Experiment(filter: {label: "%s"}, inferred: true) {
-        startDate
-      }
-    }', experiment_label)
+  experiment_uri <- getUrisFromName(experiment_label)
 
-  response <- httr::POST(
-    url = session$urlGraphql,
-    httr::add_headers(
-      Authorization = paste("Bearer", session$token),
-      "Content-Type" = "application/json"
-    ),
-    body = list(query = gql_query),
-    encode = "json"
-  )
-
-  httr::stop_for_status(response)
-  content <- httr::content(response, as = "parsed")
-
-  if (length(content$data$Experiment) == 0) {
-    stop("No experiment found with label: ", experiment_label)
+  if (length(experiment_uri) > 1) {
+    selected_uri <- menu(experiment_uri, title = "Multiple URIs found. Please choose one URI:")
+    experiment_uri <- experiment_uri[selected_uri]
   }
-
-  start_date <- gsub("-", "_", substr(content$data$Experiment[[1]]$startDate, 1, 10))
-  clean_label <- gsub("[^A-Za-z0-9]", "_", experiment_label)
-  experiment_uri <- paste0("EXP_", clean_label, "_", start_date)
-
-  if (verbose) message("Constructed experiment URI: ", experiment_uri)
 
   # --- Step 2: Original logic begins here
   endpoint <- "/core/variables"
@@ -67,7 +54,7 @@ lsVarByExp <- function(session,
 
   query_params <- list(
     experiments = experiment_uri,
-    withAssociatedData = "false",
+    withAssociatedData = "True",
     order_by = "uri=asc",
     page = 0,
     page_size = 1000
@@ -99,13 +86,7 @@ lsVarByExp <- function(session,
         )
       })
 
-      # Register URI-Name mappings
-      if (exists("uri_name")) {
-        purrr::walk2(variables_df$uri, variables_df$name, insertUri_Name)
-        if (check_consistency) UriCons()
-      } else {
-        warning("URI-Name mapping not initialized. Call initUriName() first.")
-      }
+      insertUri_Name(variables_df[, c("uri", "name")])
 
       # Optional CSV export
       if (!is.null(output_dir)) {
