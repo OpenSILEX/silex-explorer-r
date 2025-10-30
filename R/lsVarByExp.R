@@ -15,11 +15,14 @@
 #' \dontrun{
 #' # Assuming session is already created by login function
 #'
-#' # Example 1: Retrieve variables for an experiment
+#' Example 1: Retrieve all variables having data (no filter)
+#' all_variables <- lsVarByExp(session)
+#'
+#' # Example 2: Retrieve variables for an experiment
 #' variables_by_exp <- lsVarByExp(session, experiment_label = "experiment_001")
 #' print(variables_by_exp)
 #'
-#' # Example 2: Retrieve variables and save to a specific output directory
+#' # Example 3: Retrieve variables and save to a specific output directory
 #' variables_by_exp_with_csv <- lsVarByExp(session, experiment_label = "experiment_002", output_dir = "/path/to/save")
 #' print(variables_by_exp_with_csv)
 #' }
@@ -43,10 +46,16 @@ lsVarByExp <- function(session,
 
   experiment_uri <- getUrisFromName(experiment_label)
 
+  if (length(experiment_uri) == 0) {
+    warning(paste0("⚠️ No experiment found with label '", experiment_label, "'."))
+    return(tibble::tibble())
+  }
+
   if (length(experiment_uri) > 1) {
     selected_uri <- menu(experiment_uri, title = "Multiple URIs found. Please choose one URI:")
     experiment_uri <- experiment_uri[selected_uri]
   }
+
 
   # --- Step 2: Original logic begins here
   endpoint <- "/core/variables"
@@ -96,7 +105,7 @@ lsVarByExp <- function(session,
         }
 
         timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-        output_file <- file.path(output_dir, paste0("variables_", timestamp, ".csv"))
+        output_file <- file.path(output_dir, paste0("variables_by_exp_", experiment_label,"_",timestamp, ".csv"))
         write.csv(variables_df, file = output_file, row.names = FALSE, fileEncoding = "UTF-8")
 
         if (verbose) message("Data saved to ", output_file)

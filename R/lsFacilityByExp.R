@@ -6,6 +6,27 @@
 #' @param verbose Logical, whether to print messages (default TRUE).
 #' @param check_consistency Logical, whether to check URI-Name consistency (default TRUE).
 #' @return A tibble data frame of facilities by experiment.
+#' @examples
+#' \dontrun{
+#' # Assuming session is already created by the login function
+#'
+#' # Example 1: List all facilities used in all experiments
+#' all_facilities <- lsFacilityByExp(session)
+#' print(all_facilities)
+#'
+#' # Example 2: List facilities used in a specific experiment (e.g. "ZA17")
+#' facilities_by_exp <- lsFacilityByExp(session, exp_label = "ZA17")
+#' print(facilities_by_exp)
+#'
+#' # Example 3: List facilities for an experiment and export results to a CSV file
+#' facilities_by_exp <- lsFacilityByExp(
+#'   session,
+#'   exp_label = "ZA17",
+#'   output_dir = "your_output_directory_here"
+#' )
+#' print(facilities_by_exp)
+#' }
+#'
 #' @export
 
 lsFacilityByExp <- function(session,
@@ -15,9 +36,9 @@ lsFacilityByExp <- function(session,
   if (!inherits(session, "opensilex_connection")) {
     stop("'session' must be an opensilex_connection object")
   }
-  
+
   `%||%` <- function(x, y) if (is.null(x)) y else x
-  
+
   query <- '
     query {
       Experiment(inferred: true) {
@@ -31,7 +52,7 @@ lsFacilityByExp <- function(session,
       }
     }
   '
-  
+
   response <- httr::POST(
     url = session$urlGraphql,
     httr::add_headers(
@@ -42,32 +63,37 @@ lsFacilityByExp <- function(session,
     encode = "json",
     httr::timeout(60)
   )
-  
+
   httr::stop_for_status(response)
   result <- httr::content(response, as = "parsed")
-  
+
   if (is.null(result$data$Experiment)) {
     warning("No experiments found.")
     return(tibble::tibble())
   }
-  
+
   facilities_df <- purrr::map_df(result$data$Experiment, function(exp) {
-    if (!is.null(exp_label) && !grepl(exp_label, exp$label, ignore.case = TRUE)) return(NULL)
+    if (!is.null(exp_label) && exp$label != exp_label) return(NULL)
     if (is.null(exp$usesFacility) || length(exp$usesFacility) == 0) return(NULL)
     purrr::map_df(exp$usesFacility, function(fac) {
       tibble::tibble(
-        experiment_label = exp$label %||% "",
         facility_id = fac$`_id` %||% "",
         facility_label = fac$label %||% ""
       )
     })
   })
-  
+
+  if (nrow(facilities_df) > 0) {
+    facilities_for_mapping <- facilities_df %>%
+      dplyr::rename(uri = facility_id, name = facility_label)
+    insertUri_Name(facilities_for_mapping)
+    if (verbose) message("Facilities successfully inserted into uri_name mapping.")
+  }
   if (nrow(facilities_df) == 0) {
     if (verbose) message("No facilities found for the given experiment label.")
     return(facilities_df)
   }
-  
+
   # Optional export
   if (!is.null(output_dir)) {
     if (!dir.exists(output_dir)) {
@@ -75,12 +101,12 @@ lsFacilityByExp <- function(session,
       if (verbose) message("Created output directory: ", output_dir)
     }
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-    file_out <- file.path(output_dir, paste0("facilities_by_exp_", timestamp, ".csv"))
+    file_out <- file.path(output_dir, paste0("facilities_by_exp_",exp_label,"_", timestamp, ".csv"))
     write.csv(facilities_df, file_out, row.names = FALSE, fileEncoding = "UTF-8")
     if (verbose) message("Data saved to ", file_out)
   } else if (verbose) {
     print(facilities_df)
   }
-  
+
   return(facilities_df)
 }
