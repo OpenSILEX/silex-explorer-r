@@ -83,6 +83,8 @@ lsFacilityByExp <- function(session,
     })
   })
 
+  facilities_df <- dplyr::distinct(facilities_df)
+
   if (nrow(facilities_df) > 0) {
     facilities_for_mapping <- facilities_df %>%
       dplyr::rename(uri = facility_id, name = facility_label)
