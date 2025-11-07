@@ -22,6 +22,7 @@ Imports:
     ggplot2,
     patchwork,
     scales,
+    stringr,
     lubridate,
     rlang,
     utils

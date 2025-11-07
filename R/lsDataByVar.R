@@ -1,172 +1,219 @@
-#' Retrieve data by variable from an experiment
+#' Retrieve Data by Variable from an Experiment
 #'
-#' @param session An opensilex_connection object.
+#' Retrieves data associated with specific variables from a given experiment in OpenSILEX.
+#' The function can filter by scientific object type and variable names, and optionally
+#' export results as CSV files (one per variable).
+#'
+#' @param session An opensilex_connection object obtained from \code{login()}.
 #' @param experiment_label Character, experiment label.
-#' @param variable_name Character or NULL, variable(s) to filter.
-#' @param output_dir Character or NULL, directory to save CSV files.
-#' @param limit Numeric, limit per page.
-#' @param max_pages Numeric, max pages to fetch.
-#' @param obj_type Character or NULL, scientific object type filter.
-#' @param save_to_file Logical, whether to save CSV files.
-#' @return A list of data frames, one per variable.
+#' @param obj_type_label Character, scientific object type label.
+#' @param variable_names Character vector or NULL. List of variable names to filter on (optional).
+#' @param output_dir Character string or NULL. Directory path to save CSV files (if NULL, files are not saved).
+#'
+#' @return A named list of data frames, where each element corresponds to a variable.
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Retrieve and save data by variable for experiment "ZA17" and object type "Plant"
+#' data_by_var <- lsDataByVar(session, "ZA17", "Plant",
+#'                            output_dir = "your_output_directory_here")
+#'
+#' # Retrieve data without saving to CSV
+#' data_by_var <- lsDataByVar(session, "ZA17", "Plant")
+#' print(data_by_var)
+#'
+#' # Retrieve and save data by variable for experiment "MAU17-PG" and object type "Plot"
+#' data_by_var <- lsDataByVar(session, "MAU17-PG", "Plot",
+#'                            output_dir = "your_output_directory_here")
+
+#' # Retrieve data for specific variables
+#' variable_names <- c("BERRY_DO280", "BER_K_HPLC")
+#' data_by_var <- lsDataByVar(session, "MAU17-PG", "Plot", variable_names,
+#'                            output_dir = "your_output_directory_here")
+#' }
+#'
 lsDataByVar <- function(session,
                         experiment_label,
-                        variable_uri = NULL,
-                        output_dir = NULL,
-                        limit = 500,
-                        obj_type = NULL,
-                        save_to_file = TRUE) {
-  # Required libraries
-  library(httr)
-  library(jsonlite)
-  library(dplyr)
-  library(tidyr)
-  library(purrr)
+                        obj_type_label,
+                        variable_names = NULL,
+                        output_dir = NULL) {
+  #----------------------------------------------------------
+  # 1️⃣ Retrieve the experiment ID and Object_type name
+  #----------------------------------------------------------
+  experiment_id <- get_experiment_id(experiment_label, session)
 
-  # Resolve experiment URI from label
-  label_query <- sprintf('
-    query {
-      Experiment(filter: {label: "%s"}, inferred: true) {
-        startDate
-      }
-    }', experiment_label)
+  obj_type <- getUrisFromName(obj_type_label)
+  if(length(obj_type) > 1) {
+    warning("Multiple URIs found, the first one will be used by default")
+    obj_type <- obj_type[1]
+  }
 
-  label_response <- httr::POST(
+  # 2️⃣ Check/create output directory if CSV export is requested
+  #----------------------------------------------------------
+  save_to_csv <- !is.null(output_dir)
+
+  if (save_to_csv) {
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE)  # Create directory if it doesn't exist
+    }
+  }
+  #----------------------------------------------------------
+  # 3️⃣ Retrieve data using GraphQL query
+  #----------------------------------------------------------
+  query_data <- '
+     query GetScientificObjects($experience: [DataSource!]!, $objType: String!) {
+       ScientificObject(inferred: true,
+       Experience: $experience,
+       filter: {
+         type: $objType
+       }) {
+         label
+         type: _type(inferred: true)
+         data {
+           target
+           variable
+           value
+           date
+         }
+       }
+     }
+   '
+  response <- POST(
     url = session$urlGraphql,
-    httr::add_headers(
+    add_headers(
       Authorization = paste("Bearer", session$token),
       "Content-Type" = "application/json"
     ),
-    body = list(query = label_query),
-    encode = "json",
-    httr::timeout(60)
+    body = list(query = query_data, variables = list(
+      experience = list(experiment_id),
+      objType = obj_type
+    )),
+    encode = "json"
   )
 
-  httr::stop_for_status(label_response)
-  label_result <- httr::content(label_response, as = "parsed")
+  result <- httr::content(response, as = "parsed")
 
-  if (length(label_result$data$Experiment) == 0) {
-    stop("No experiment found with label: ", experiment_label)
+  if (length(result$data$ScientificObject) == 0) {
+    stop("ERROR: No data retrieved for experiment: ", experiment_label)
   }
 
-  exp_data <- label_result$data$Experiment[[1]]
-  start_date <- gsub("-", "_", substr(exp_data$startDate, 1, 10))
-  clean_label <- gsub("[^A-Za-z0-9]", "_", experiment_label)
-  experiment_id <- paste0("EXP_", clean_label, "_", start_date)
-  message("Resolved experiment ID: ", experiment_id)
+  all_data <- result$data$ScientificObject
+  #----------------------------------------------------------
+  # 4️⃣ Merge and clean data
+  #----------------------------------------------------------
+  if (length(all_data) > 0) {
 
-  clean_variable_name <- function(var) {
-    cleaned <- sub("^.*/", "", var)
-    cleaned <- gsub("[^[:alnum:]_]", "_", cleaned)
-    return(cleaned)
+    # Use map_dfr to apply a function to each element of all_data and combine results
+    all_data_df <- purrr::map_dfr(all_data, function(x) {
+
+      # Check if x$data is not empty
+      if (!is.null(x$data) && length(x$data) > 0) {
+
+        # Convert x$data into a data frame
+        df <- as.data.frame(do.call(rbind, lapply(x$data, function(d) {
+
+          # Handle missing data
+          target_val <- ifelse(!is.null(d$target), d$target, NA)
+          variable_val <- ifelse(!is.null(d$variable), d$variable, NA)
+          value_val <- ifelse(!is.null(d$value), as.character(d$value), NA)
+          date_val <- ifelse(!is.null(d$date), as.character(d$date), NA)
+
+          # Create data frame with validated values, excluding 'label'
+          data.frame(
+            target = target_val,
+            variable = variable_val,
+            value = value_val,
+            date = date_val
+          )
+        })))
+
+        # Return the data frame for this scientific object
+        return(df)
+
+      } else {
+        return(NULL)  # Return NULL if x$data is empty or NULL
+      }
+    })
   }
+  if (nrow(all_data_df) > 0) {
+    # If all_data_df is not empty, select relevant columns
+    all_data_df <- all_data_df %>%
+      dplyr::select(target, variable, value, date)
 
-  if (is.null(output_dir)) {
-    output_dir <- getwd()
-    message("No output_dir provided. Saving CSV files to current directory: ", output_dir)
-  }
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
+    #----------------------------------------------------------
+    # 5️⃣ Filter by variable_names (if provided)
+    #----------------------------------------------------------
+    split_data <- split(all_data_df, all_data_df$variable)
 
-  fetch_page <- function(page) {
-    filter_clause <- if (!is.null(obj_type)) {
-      sprintf(', filter: {type: "%s"}', obj_type)
-    } else {
-      ""
-    }
-
-    query <- sprintf('
-      query {
-        ScientificObject(Experience: %s, inferred: true, limit: %d, page: %d%s) {
-          label
-          type: _type(inferred: true)
-          data {
-            target
-            variable
-            value
-            date
-          }
+    variable_uris <- NULL  # Initialize variable_uris
+    if (!is.null(variable_names)) {
+      # Retrieve URIs for each variable name
+      variable_uris <- sapply(variable_names, function(var_name) {
+        uris <- getUrisFromName(var_name)
+        if (length(uris) > 1) {
+          warning(paste("Multiple URIs found for variable:", var_name, "the first one will be used"))
+          return(uris[1])
+        } else if (length(uris) == 0) {
+          warning(paste("No URI found for variable:", var_name))
+          return(NULL)
         }
-      }',
-                     experiment_id, limit, page, filter_clause
-    )
+        return(uris[1])
+      })
+      variable_uris <- variable_uris[!is.null(variable_uris)]  # Remove NULLs
 
-    response <- httr::POST(
-      url = session$urlGraphql,
-      httr::add_headers(Authorization = paste("Bearer", session$token)),
-      body = list(query = query),
-      encode = "json"
-    )
-
-    if (httr::status_code(response) >= 200 && httr::status_code(response) < 300) {
-      content <- httr::content(response, "text", encoding = "UTF-8")
-      json <- jsonlite::fromJSON(content, flatten = TRUE)
-      data <- json$data$ScientificObject
-
-      if (!is.null(data) && is.data.frame(data) && "data" %in% names(data)) {
-        valid_data <- data[purrr::map_lgl(data$data, ~ !is.null(.x) && nrow(.x) > 0), ]
-        return(valid_data)
+      if (length(variable_uris) == 0) {
+        warning("WARNING: No valid URIs found for the provided variable names.")
+        return(list())  # Return empty list if no valid URIs
       }
     }
-    return(NULL)
-  }
 
-  page <- 1
-  all_data_pages <- list()
-
-  repeat {
-    message("Fetching page: ", page)
-    page_data <- fetch_page(page)
-    if (is.null(page_data) || nrow(page_data) == 0) {
-      message("No data found on page ", page, ". Stopping.")
-      break
-    }
-    all_data_pages[[page]] <- page_data
-    page <- page + 1
-  }
-
-  if (length(all_data_pages) == 0) {
-    warning("No data found.")
-    return(data.frame(label = character(), object_type = character(), value = numeric(), date = as.POSIXct(character())))
-  }
-
-  all_data <- bind_rows(all_data_pages)
-  all_data <- tidyr::unnest(all_data, data)
-  all_data$date <- format(as.POSIXct(all_data$date, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"), "%Y-%m-%d %H:%M:%S")
-
-  all_data$object_type <- as.character(all_data$type)
-
-  # Split by variable and optionally filter
-  split_data <- split(all_data, all_data$variable)
-  if (!is.null(variable_uri)) {
-    split_data <- split_data[variable_uri]
-  }
-
-  results_list <- list()
-  for (var in names(split_data)) {
-    result <- split_data[[var]] %>%
-      dplyr::select(label, object_type, value, date)
-
-    if (save_to_file) {
-      clean_var_name <- clean_variable_name(var)
-      output_file <- file.path(output_dir, paste0(clean_var_name, "_data.csv"))
-
-      tryCatch({
-        write.csv(result, file = output_file, row.names = FALSE)
-        message("Data for variable '", var, "' saved to ", output_file)
-      }, error = function(e) {
-        warning("Failed to save data for variable '", var, "': ", e$message)
-      })
+    if (length(variable_uris) > 0) {
+      split_data <- split_data[names(split_data) %in% variable_uris]
+      if (length(split_data) == 0) {
+        warning("WARNING: None of the provided variable URIs were found in the data.")
+        return(list())  # Return empty list if no match
+      }
     }
 
-    results_list[[var]] <- result
-  }
+    #----------------------------------------------------------
+    # 6️⃣ Export CSV (optional) + return list of dataframes
+    #----------------------------------------------------------
+    results <- list()
 
-  if (!is.null(variable_uri)) {
-    return(results_list[[variable_uri]])
+    for (var_uri in names(split_data)) {
+      df <- split_data[[var_uri]] %>%
+        dplyr::select(uri = target, value, date)
+
+      results[[var_uri]] <- df
+
+      # Save to CSV if output_dir is provided
+      if (save_to_csv) {
+        var_name <- getNamesFromUri(var_uri)
+        if(length(var_name) > 1) {
+          warning("Multiple URIs found, the first one will be used by default")
+          var_name <- var_name[1]
+        }
+        name_clean <- gsub("[^A-Za-z0-9_-]", "_", var_name)
+
+        # Replace spaces with underscores
+        var_name <- gsub("\\s+", "_", name_clean)
+        csv_path <- file.path(output_dir, paste0(var_name, "_data.csv"))
+
+        tryCatch({
+          write.csv(df, csv_path, row.names = FALSE)
+          message("OK: Saved data for variable '", var_name, "' -> ", csv_path)
+        }, error = function(e) {
+          warning("WARNING: Failed to save ", var_name, ": ", e$message)
+        })
+      }
+    }
+
+    return(results)  # Return a list of dataframes, one per variable
   } else {
-    return(results_list)
+    # If all_data_df is empty
+    message("ERROR: No available data.")
+    return(list())  # Return empty list
   }
 }
