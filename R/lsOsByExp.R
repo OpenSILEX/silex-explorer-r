@@ -57,40 +57,9 @@ lsOsByExp <- function(session, experiment_label,
 
   `%||%` <- function(x, y) if (is.null(x)) y else x
 
-  # Step 1: Get experiment start date
-  if (verbose) message("Fetching start date for experiment label: ", experiment_label)
+  # Step 1: Get experiment id
+  experiment_id <- get_experiment_id(experiment_label, session)
 
-  label_query <- sprintf('
-    query {
-      Experiment(filter: {label: "%s"}, inferred: true) {
-        startDate
-      }
-    }', experiment_label)
-
-  label_response <- httr::POST(
-    url = session$urlGraphql,
-    httr::add_headers(
-      Authorization = paste("Bearer", session$token),
-      "Content-Type" = "application/json"
-    ),
-    body = list(query = label_query),
-    encode = "json",
-    httr::timeout(60)
-  )
-
-  httr::stop_for_status(label_response)
-  label_result <- httr::content(label_response, as = "parsed")
-
-  if (length(label_result$data$Experiment) == 0) {
-    stop("No experiment found with label: ", experiment_label)
-  }
-
-  exp_data <- label_result$data$Experiment[[1]]
-  start_date <- gsub("-", "_", substr(exp_data$startDate, 1, 10))
-  clean_label <- gsub("[^A-Za-z0-9]", "_", experiment_label)
-  experiment_uri <- paste0("EXP_", clean_label, "_", start_date)
-
-  if (verbose) message("Constructed experiment URI: ", experiment_uri)
 
   # Step 2: Query scientific objects
   query <- sprintf('
@@ -111,7 +80,7 @@ lsOsByExp <- function(session, experiment_label,
         fromAccession { label }
       }
     }
-  }', experiment_uri)
+  }', experiment_id)
 
   response <- httr::POST(
     url = session$urlGraphql,
