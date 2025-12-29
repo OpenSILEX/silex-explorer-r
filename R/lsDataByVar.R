@@ -96,7 +96,7 @@ lsDataByVar <- function(session,
   result <- httr::content(response, as = "parsed")
 
   if (length(result$data$ScientificObject) == 0) {
-    stop("ERROR: No data retrieved for experiment: ", experiment_label)
+    stop("No data retrieved for experiment: ", experiment_label)
   }
 
   all_data <- result$data$ScientificObject
@@ -172,7 +172,7 @@ lsDataByVar <- function(session,
     if (length(variable_uris) > 0) {
       split_data <- split_data[names(split_data) %in% variable_uris]
       if (length(split_data) == 0) {
-        warning("WARNING: None of the provided variable URIs were found in the data.")
+        warning("WARNING: None of the provided variables were found in the data.")
         return(list())  # Return empty list if no match
       }
     }

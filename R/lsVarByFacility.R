@@ -75,6 +75,7 @@ lsVarByFacility <- function(session,
     return(tibble::tibble())
   }
 
+
   if (length(facility_uri) > 1) {
     selected_uri <- menu(facility_uri, title = "Multiple URIs found. Please choose one URI:")
     facility_uri <- facility_uri[selected_uri]
