@@ -2,15 +2,9 @@
 % Please edit documentation in R/lsOsByType.R
 \name{lsOsTypeByExp}
 \alias{lsOsTypeByExp}
-\title{Retrieve scientific objects and their types from an experiment}
+\title{Retrieve variables associated with an experiment}
 \usage{
-lsOsTypeByExp(
-  session,
-  experiment_label,
-  output_dir = NULL,
-  check_consistency = TRUE,
-  verbose = TRUE
-)
+lsOsTypeByExp(session, experiment_label, output_dir = NULL, verbose = TRUE)
 }
 \arguments{
 \item{session}{An opensilex_connection object.}
@@ -19,14 +13,28 @@ lsOsTypeByExp(
 
 \item{output_dir}{Character string or NULL. Directory path to save the output CSV file. If NULL, no file is saved.}
 
-\item{check_consistency}{Logical. Whether to check URI-name mapping consistency after retrieval.}
+\item{verbose}{Logical. Whether to print messages about progress.}
 
-\item{verbose}{Logical. Whether to print messages about the process.}
+\item{check_consistency}{Logical. Whether to check URI-name mapping consistency after retrieval.}
 }
 \value{
-A tibble with columns `id`, `label`, and `type` for each scientific object.
+A tibble with columns `uri`, `name`, `entity`, `characteristic`, `method`, and `unit`.
 }
 \description{
-Queries the OpenSILEX system for scientific objects associated with a given experiment label,
-returning their IDs, labels, and types. Optionally saves results to CSV.
+Queries the OpenSILEX REST API to obtain variables used in a specified experiment,
+returning details such as URI, name, entity, characteristic, method, and unit.
+Optionally saves results to CSV.
+}
+\examples{
+\dontrun{
+# Log in to OpenSILEX
+session <- login(id = "your_email@example.com",
+                 password = "your_password",
+                 instance = "http://138.102.159.36:8084",
+                 urlGraphql = "http://138.102.159.37/graphql")
+
+# Example: Get object types from experiment
+os_types <- lsOsTypeByExp(session, experiment_label = "SweetPotatoViruses_2018")
+print(os_types)
+}
 }

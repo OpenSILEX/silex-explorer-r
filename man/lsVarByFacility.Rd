@@ -6,26 +6,72 @@
 \usage{
 lsVarByFacility(
   session,
-  facility_uri,
+  facility_label,
   date_beginning = NULL,
   date_end = NULL,
-  csv_filepath = NULL
+  output_dir = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{session}{An opensilex_connection object.}
 
-\item{facility_uri}{Character, URI of the facility.}
-
 \item{date_beginning}{Character or NULL, start date filter (YYYY-MM-DD).}
 
 \item{date_end}{Character or NULL, end date filter (YYYY-MM-DD).}
 
-\item{csv_filepath}{Character or NULL, path to save CSV file.}
+\item{output_dir}{Character or NULL, directory to save CSV file (optional).}
+
+\item{verbose}{Logical, whether to print messages (default TRUE).}
+
+\item{facility_uri}{Character, URI of the facility.}
 }
 \value{
 A tibble data frame with variable details.
 }
 \description{
 Retrieve variables associated with a facility and optional date range
+}
+\examples{
+\dontrun{
+# Assuming session is already created by login function
+
+# Example 1: Retrieve all environnemental variables for a given facility
+variables_by_facility <- lsVarByFacility(session, facility_label = "greenhouse 1")
+print(variables_by_facility)
+
+# Example 2: Retrieve variables and save to a specific output directory
+variables_by_facility_csv <- lsVarByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  output_dir = "your_output_directory_here"
+)
+print(variables_by_facility_csv)
+
+# Example 3: Retrieve variables with a start date filter
+variables_by_facility_beg <- lsVarByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  date_beginning = "2017-04-16"
+)
+print(variables_by_facility_beg)
+
+# Example 4: Retrieve variables with an end date filter (ISO format)
+variables_by_facility_end <- lsVarByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  date_end = "2017-04-16T20:00:00.000Z"
+)
+print(variables_by_facility_end)
+
+# Example 5: Retrieve variables with both start and end date filters
+variables_by_facility_beg_end <- lsVarByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  date_beginning = "2017-04-16T20:00:00.000Z",
+  date_end = "2017-04-16T22:00:00.000Z"
+)
+print(variables_by_facility_beg_end)
+}
+
 }

@@ -2,22 +2,41 @@
 % Please edit documentation in R/extract_group_objects.R
 \name{extract_group_objects}
 \alias{extract_group_objects}
-\title{Extraire un groupe d'objets scientifiques par ID}
+\title{Extract a Group of Scientific Objects by Group ID}
 \usage{
-extract_group_objects(group_dict, group_id, output_filename = NULL)
+extract_group_objects(group_dict, group_id, output_dir = NULL)
 }
 \arguments{
-\item{group_dict}{Une liste nommée contenant des objets `data.frame`, typiquement issue d’un split par groupe.}
+\item{group_dict}{A named list containing \code{data.frame} objects, usually
+resulting from a grouping or splitting operation.}
 
-\item{group_id}{Le nom du groupe à extraire (doit correspondre à un nom de `group_dict`).}
+\item{group_id}{Character string specifying the group identifier to extract.
+It must match one of the names in \code{group_dict}.}
 
-\item{output_filename}{(optionnel) Chemin vers un fichier `.csv` où sauvegarder les données du groupe extrait.
-Si `NULL`, aucune sauvegarde n'est effectuée.}
+\item{output_dir}{Optional character string specifying a directory where the
+extracted group will be saved as a \code{.csv} file. If \code{NULL}, no file
+is written.}
 }
 \value{
-Le `data.frame` correspondant au groupe extrait.
+A \code{data.frame} corresponding to the extracted group.
 }
 \description{
-Cette fonction extrait un sous-ensemble de données (`data.frame`) à partir d'une liste (dictionnaire)
-indexée par identifiants de groupe. Elle peut aussi sauvegarder le groupe extrait dans un fichier `.csv`.
+This function extracts a subset of data (a \code{data.frame}) from a named
+list of grouped objects, typically produced by a grouping or splitting
+procedure. The extracted group can optionally be saved to a CSV file.
+}
+\details{
+If \code{output_dir} is provided, the function creates the directory if it does
+not exist and saves the extracted group to a CSV file named
+\code{"group_<group_id>.csv"}.
+}
+\examples{
+\dontrun{
+group_of_os <- extract_group_objects(
+  group_summary,
+  group_id = "WD_ZM4351_SeedLot_Zea mays",
+  output_dir = "temp_files"
+)
+}
+
 }

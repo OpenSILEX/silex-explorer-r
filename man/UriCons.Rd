@@ -7,12 +7,8 @@
 UriCons()
 }
 \description{
-Interactive function to resolve duplicate names in the URI-name mapping.
-Allows users to modify names when duplicates are detected.
-}
-\examples{
-\dontrun{
-initUriName()
-UriCons()
-}
+Checks for inconsistencies in the uri_name mapping:
+- URIs associated with multiple names
+- Names associated with multiple URIs
+Displays warnings but does not modify the data.
 }

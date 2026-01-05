@@ -2,25 +2,39 @@
 % Please edit documentation in R/export_data_by_variable_to_csv.R
 \name{export_data_by_variable_to_csv}
 \alias{export_data_by_variable_to_csv}
-\title{Export data by variable to CSV files}
+\title{Export Data by Variable to CSV Files}
 \usage{
-export_data_by_variable_to_csv(
-  var_exp,
-  data,
-  csv_filepath = "/home/abidri/Bureau/test_R/csv_groups"
-)
+export_data_by_variable_to_csv(var_exp, data, output_dir)
 }
 \arguments{
-\item{var_exp}{DataFrame contenant la metadata des variables, avec au moins les colonnes `URI` et `Name`.}
+\item{var_exp}{A data frame containing variable metadata, with at least the
+columns \code{uri} and \code{name}.}
 
-\item{data}{DataFrame contenant les données scientifiques, avec au moins les colonnes `variable`, `target`, `value` et `date`.}
+\item{data}{A data frame containing scientific data, with at least the
+columns \code{variable}, \code{target}, \code{value}, and \code{date}.}
 
-\item{csv_filepath}{Chemin du dossier où les fichiers CSV seront enregistrés. Par défaut : "/home/abidri/Bureau/test_R/csv_groups".}
+\item{output_dir}{Optional character string specifying the directory where
+CSV files will be written. If \code{NULL}, no files are created.}
 }
 \value{
-Une liste de DataFrames, chaque élément correspondant aux données filtrées d'une variable.
+A named list of data frames, where each element corresponds to the filtered
+data of a single variable.
 }
 \description{
-Cette fonction exporte les données scientifiques groupées par variable dans des fichiers CSV séparés.
-Chaque variable aura son propre fichier CSV nommé d'après la variable.
+This function exports scientific data grouped by variable into separate CSV
+files. Each variable is written to its own CSV file, named after the variable.
+The function also returns the exported data as a list of data frames.
+}
+\details{
+The function performs the following steps:
+\itemize{
+  \item Splits the input data by variable URI.
+  \item Removes rows with missing \code{target}, \code{value}, or \code{date}.
+  \item Builds a clean data frame for each variable with targets, values, and dates.
+  \item Saves each variable-specific data frame to a CSV file named
+  \code{"<variable_name>_data.csv"} when \code{output_dir} is provided.
+}
+
+Variables are named using the metadata provided in \code{var_exp}. If no name
+is found for a variable URI, the last segment of the URI is used instead.
 }

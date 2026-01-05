@@ -2,22 +2,40 @@
 % Please edit documentation in R/get_data_os.R
 \name{get_data_os}
 \alias{get_data_os}
-\title{Récupère les données scientifiques pour une expérience donnée}
+\title{Retrieve Scientific Object Data for a Given Experiment}
 \usage{
-get_data_os(session, exp_name, df_os)
+get_data_os(session, exp_name, df_os, output_dir = NULL)
 }
 \arguments{
-\item{session}{Une liste contenant les informations de session, incluant l'URL GraphQL et le token d'authentification.}
+\item{session}{A list containing session information, including the GraphQL
+endpoint URL and the authentication token.}
 
-\item{exp_name}{Nom ou identifiant de l'expérience.}
+\item{exp_name}{Character string specifying the name or identifier of the
+experiment.}
 
-\item{df_os}{DataFrame contenant les objets scientifiques, avec au minimum une colonne `uri`.}
+\item{df_os}{A data frame containing scientific objects, with at least a
+\code{uri} column.}
+
+\item{output_dir}{Optional character string specifying the directory where
+variable-specific CSV files will be written. If \code{NULL}, no files are created.}
 }
 \value{
-Un `tibble` combiné de toutes les données récupérées ou `NULL` en cas d'erreur.
+A combined \code{tibble} containing all retrieved data, or \code{NULL} if an
+error occurs during execution.
 }
 \description{
-Cette fonction utilise le plan `future::multisession` pour paralléliser la récupération
-des données liées à une liste d'objets scientifiques (`df_os`) pour une expérience donnée (`exp_name`).
-En cas d'erreur, elle capture proprement l'exception et renvoie `NULL`.
+This function retrieves data associated with a set of scientific objects
+for a given experiment. It uses the \code{future::multisession} plan to
+parallelize data fetching across multiple workers.
+}
+\details{
+If an error occurs during execution, the function safely captures the
+exception and returns \code{NULL}.
+
+
+The function temporarily switches the \code{future} execution plan to
+\code{multisession} in order to enable parallel processing. The original
+execution plan is restored to \code{sequential} when the function exits,
+even if an error occurs. The \code{output_dir} parameter is passed to
+downstream functions to control where CSV files are written.
 }

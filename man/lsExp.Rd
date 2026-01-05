@@ -4,27 +4,18 @@
 \alias{lsExp}
 \title{List Experiments}
 \usage{
-lsExp(
-  session,
-  species = NULL,
-  projet = NULL,
-  date = NULL,
-  output_dir = NULL,
-  check_consistency = TRUE
-)
+lsExp(session, Species = NULL, projet = NULL, date = NULL, output_dir = NULL)
 }
 \arguments{
 \item{session}{An opensilex_connection object obtained from login().}
 
-\item{species}{Character string. Filter experiments by species (optional).}
+\item{Species}{Character string. Filter experiments by species (optional).}
 
 \item{projet}{Character string. Filter experiments by project (optional).}
 
 \item{date}{Date or character string. Filter experiments active on this date (optional).}
 
 \item{output_dir}{Character string. Directory to save results as CSV (optional).}
-
-\item{check_consistency}{Logical. Whether to check URI-name consistency. Default TRUE.}
 }
 \value{
 A data frame containing experiment information.
@@ -34,13 +25,25 @@ Retrieves a list of experiments from OpenSILEX with optional filtering.
 }
 \examples{
 \dontrun{
-session <- login("user", "pass", "https://instance.com", "https://instance.com/graphql")
-experiments <- lsExp(session)
+# Assuming session is already created by login function
+# List all experiments
+all_experiments <- lsExp(session)
+print(all_experiments)
 
-# Filter by species
-experiments <- lsExp(session, species = "Zea mays")
+# List experiments active on a specific date
+active_experiments <- lsExp(session, date = "2025-01-10")
+print(active_experiments)
 
-# Save to CSV
-experiments <- lsExp(session, output_dir = "data/")
+# List experiments filtered by project
+expe_by_project <- lsExp(session, projet = "EPPN2020")
+print(expe_by_project)
+
+# List experiments filtered by species
+expe_by_species <- lsExp(session, Species = "Zea mays")
+print(expe_by_species)
+
+# List experiments filtered by both species and project
+expe_by_species_project <- lsExp(session, date = "2017-05-18", projet = "French plant phenomic network (FPPN)", Species = "Zea mays")
+print(expe_by_species_project)
 }
 }

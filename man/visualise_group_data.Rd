@@ -2,26 +2,51 @@
 % Please edit documentation in R/visualise_group_data.R
 \name{visualise_group_data}
 \alias{visualise_group_data}
-\title{Visualiser les données groupées par variable}
+\title{Visualize Grouped Scientific Data by Variable}
 \usage{
-visualise_group_data(df_variables, output_file = NULL)
+visualise_group_data(df_variables, group_id, output_dir = NULL)
 }
 \arguments{
-\item{df_variables}{Une liste de `tibble`, chaque élément représentant une variable sous forme de `data.frame`
-avec les colonnes `URI`, le nom de la variable, et `Date`.}
+\item{df_variables}{A named list of \code{tibble} objects, where each element
+represents a variable and contains at least the columns \code{URI}, the
+variable values, and \code{Date}.}
 
-\item{output_file}{(Optionnel) Chemin vers un fichier image (ex: `"output.png"`). Si `NULL` ou vide, la visualisation n'est pas enregistrée.}
+\item{group_id}{Character string identifying the group being visualized. This
+identifier is used to name the output PDF file.}
+
+\item{output_dir}{Optional character string specifying the directory where the
+visualization PDF will be saved. If \code{NULL} or empty, the visualization
+is displayed but not saved.}
 }
 \value{
-Aucun objet retourné. Affiche la figure combinée à l'écran et éventuellement sauvegarde le fichier.
+No object is returned. The combined visualization is displayed on screen and
+optionally saved to a PDF file.
 }
 \description{
-Cette fonction crée une série de graphiques temporels (un par variable) pour les objets scientifiques,
-avec des couleurs spécifiques par URI. Elle combine ensuite les graphiques en une seule figure à l'aide du package `patchwork`.
-Si un chemin est fourni, la visualisation est enregistrée dans un fichier.
+This function creates a series of time-series plots (one per variable) for a
+group of scientific objects. Each scientific object (URI) is displayed using
+a consistent color across all plots. The individual plots are then combined
+into a single figure using the \pkg{patchwork} package.
 }
 \details{
-- Les graphiques affichent les données dans le temps pour chaque URI, colorées selon une palette cohérente.
-- Le type de visualisation (points ou ligne) dépend de la densité et complétude des données.
-- Les légendes sont regroupées et affichées en bas.
+If an output directory is provided, the combined visualization is saved as a
+PDF file named \code{"visualisation_group_<group_id>.pdf"} inside the specified
+directory.
+
+
+The function performs the following steps:
+\itemize{
+  \item Generates one time-series plot per variable.
+  \item Colors observations consistently by scientific object URI across all plots.
+  \item Automatically chooses between points and lines depending on data density
+  and completeness.
+  \item Collects and displays a shared legend at the bottom of the figure.
+  \item Combines all plots into a single layout using \code{patchwork}.
+  \item Saves the visualization as a PDF file if \code{output_dir} is provided.
+}
+
+The output file is saved using the following pattern:
+\preformatted{
+output_dir/visualisation_group_<group_id>.pdf
+}
 }

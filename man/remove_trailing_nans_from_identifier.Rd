@@ -2,18 +2,20 @@
 % Please edit documentation in R/remove_trailing_nans_from_identifier.R
 \name{remove_trailing_nans_from_identifier}
 \alias{remove_trailing_nans_from_identifier}
-\title{Nettoyer un identifiant de groupe}
+\title{Clean a Group Identifier}
 \usage{
 remove_trailing_nans_from_identifier(group_identifier)
 }
 \arguments{
-\item{group_identifier}{Chaîne de caractères. Identifiant du groupe à nettoyer.}
+\item{group_identifier}{Character string. Group identifier to be cleaned.}
 }
 \value{
-Une chaîne de caractères correspondant à l’identifiant nettoyé. Retourne une chaîne vide si tout a été supprimé.
+A character string corresponding to the cleaned identifier.
+  Returns an empty string if everything has been removed.
 }
 \description{
-Supprime les suffixes \code{"_nan"} (non sensibles à la casse) à la fin d’un identifiant de groupe.
+Removes trailing \code{"_nan"} suffixes (case-insensitive) at the end of a
+group identifier.
 }
 \examples{
 remove_trailing_nans_from_identifier("WD_ZM1289_nan")  # "WD_ZM1289"

@@ -1,26 +1,57 @@
-#' Group Scientific Objects by Similar Attributes
+#' Group Scientific Objects by Attribute Similarity
 #'
-#' This function groups scientific objects in a data frame by their attribute values,
-#' excluding 'uri' and 'label' columns, and creates group identifiers.
-#' It also optionally saves a summary CSV file listing groups and their sizes.
+#' This function groups scientific objects (rows of a data frame) according to
+#' identical combinations of their attribute values.
+#' Two objects belong to the same group if they share the same values across all
+#' relevant attributes after normalization.
 #'
-#' @param df A data frame containing scientific objects data.
-#' @param output_filename Optional character string specifying the path to save the group summary CSV.
+#' The columns \code{uri} and \code{name} are excluded from the grouping process,
+#' as they are assumed to be identifiers rather than discriminative attributes.
 #'
-#' @return A named list where each element is a data frame corresponding to a group of objects.
+#' @param df A data frame where each row represents a scientific object and
+#'   columns represent object attributes.
+#' @param output_dir Optional character string specifying a directory where a CSV
+#'   summary of group sizes will be saved. If \code{NULL}, no file is written.
+#'
+#' @return
+#' A named list of data frames.
+#' Each element of the list corresponds to one group of similar objects.
+#' The names of the list elements are the group identifiers.
 #'
 #' @details
-#' - Columns with identical values for all rows are excluded from grouping.
-#' - Empty strings and NA values are replaced with 'NaN' for grouping.
-#' - Group identifiers have trailing '_NaN' suffixes removed.
-#' - Groups with only 'NaN' values are labeled as 'NaN_group'.
+#' The grouping process follows these steps:
+#' \itemize{
+#'   \item Columns \code{uri} and \code{name} are excluded from comparison.
+#'   \item Columns with identical values for all rows are ignored, as they do not
+#'   contribute to distinguishing objects.
+#'   \item Missing values (\code{NA}) and empty strings are replaced with the
+#'   string \code{"NaN"}.
+#'   \item A group identifier is created by concatenating attribute values with
+#'   underscores.
+#'   \item Trailing \code{"_NaN"} suffixes at the end of an identifier are removed
+#'   using \code{remove_trailing_nans_from_identifier()}.
+#'   \item Objects whose attributes are all missing are assigned to a default
+#'   group named \code{"NaN_group"}.
+#' }
+#'
+#' If \code{output_dir} is provided, a CSV file named
+#' \code{"group_summary.csv"} is created, listing each group identifier and the
+#' number of objects it contains.
+#'
+#' @examples
+#' \dontrun{
+#' groups <- group_scientific_objects(df, output_dir = "results/")
+#' names(groups)           # group identifiers
+#' nrow(groups[[1]])       # number of objects in the first group
+#' }
 #'
 #' @importFrom utils write.csv
 #' @export
 
-group_scientific_objects <- function(df, output_filename = NULL) {
+
+group_scientific_objects <- function(df, output_dir = NULL) {
   # Exclude 'uri' and 'label' columns from comparison
-  columns_to_compare <- setdiff(colnames(df), c("uri", "label"))
+  columns_to_compare <- setdiff(colnames(df), c("uri", "name"))
 
   # Exclude columns where all values are the same
   columns_to_compare <- columns_to_compare[sapply(df[columns_to_compare], function(x) length(unique(x))) > 1]
@@ -59,11 +90,24 @@ group_scientific_objects <- function(df, output_filename = NULL) {
   group_summary_df <- do.call(rbind, group_data)
   colnames(group_summary_df) <- c("Group", "Number of Elements")
 
-  # Save summary to CSV if filename provided
-  if (!is.null(output_filename)) {
-    write.csv(group_summary_df, output_filename, row.names = FALSE)
-    cat(paste("Group summary has been saved to", output_filename, "\n"))
+  # Save summary to CSV if output_dir provided
+  save_to_csv <- !is.null(output_dir)
+
+  if (save_to_csv) {
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE)  # Create directory if it doesn't exist
+    }
+    csv_path <- file.path(output_dir, "group_summary.csv")
+
+
+    tryCatch({
+      write.csv(group_summary_df, csv_path, row.names = FALSE)
+      message("OK: Group summary has been saved to  -> ", csv_path)
+    }, error = function(e) {
+      warning("WARNING: Failed to save groups : ", e$message)
+    })
   }
+
 
   # Return the dictionary of groups
   return(group_dict)

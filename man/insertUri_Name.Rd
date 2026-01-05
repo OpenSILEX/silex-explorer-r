@@ -2,21 +2,16 @@
 % Please edit documentation in R/insertUri_Name.R
 \name{insertUri_Name}
 \alias{insertUri_Name}
-\title{Insert URI-Name Mapping}
+\title{Insert multiple URI-name pairs into the uri_name mapping.}
 \usage{
-insertUri_Name(uri, name)
+insertUri_Name(uri_name_pairs)
 }
 \arguments{
-\item{uri}{Character string. The URI to add.}
-
-\item{name}{Character string. The name associated with the URI.}
+\item{uri_name_pairs}{A DataFrame containing 'uri' and 'name' columns with the new URI-name pairs to be added.}
 }
 \description{
-Adds a new URI-name pair to the mapping if the URI doesn't already exist.
-}
-\examples{
-\dontrun{
-initUriName()
-insertUri_Name("http://example.com/exp1", "Experiment 1")
-}
+This function inserts multiple URI-name pairs at once into the uri_name mapping
+(stored in `.pkg_env$uri_name`). It ensures that no duplicate URI-name pairs are inserted.
+It also checks for consistency (URIs with multiple names or names with multiple URIs)
+after insertion.
 }

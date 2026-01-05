@@ -7,20 +7,25 @@
 login(id, password, instance, urlGraphql, uri_csv = "uri_name.csv")
 }
 \arguments{
-\item{id}{Character string. User identifier.}
+\item{id}{User email}
 
-\item{password}{Character string. User password.}
+\item{password}{Your password}
 
-\item{instance}{Character string. Base URL of the OpenSILEX instance.}
+\item{instance}{Base instance URL (e.g., http://localhost:8080)}
 
-\item{urlGraphql}{Character string. GraphQL endpoint URL.}
-
-\item{uri_csv}{Character string. Path to URI-name mapping CSV file.}
+\item{urlGraphql}{GraphQL URL endpoint}
 }
 \value{
-An object of class "opensilex_connection" containing authentication
-details and connection information.
+A session token (or list) on success
 }
 \description{
-Authenticates with an OpenSILEX instance and returns a connection object.
+Login to OpenSILEX
+}
+\examples{
+# Exemple d'utilisation de la fonction login
+session <- login(id = "ton_email@exemple.com",
+                 password = "ton_mot_de_passe",
+                 instance = "http://localhost:8080",
+                 urlGraphql = "http://localhost:8080/graphql")
+print(session$token)
 }

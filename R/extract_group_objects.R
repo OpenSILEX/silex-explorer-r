@@ -1,26 +1,58 @@
-#' Extraire un groupe d'objets scientifiques par ID
+#' Extract a Group of Scientific Objects by Group ID
 #'
-#' Cette fonction extrait un sous-ensemble de données (`data.frame`) à partir d'une liste (dictionnaire)
-#' indexée par identifiants de groupe. Elle peut aussi sauvegarder le groupe extrait dans un fichier `.csv`.
+#' This function extracts a subset of data (a \code{data.frame}) from a named
+#' list of grouped objects, typically produced by a grouping or splitting
+#' procedure. The extracted group can optionally be saved to a CSV file.
 #'
-#' @param group_dict Une liste nommée contenant des objets `data.frame`, typiquement issue d’un split par groupe.
-#' @param group_id Le nom du groupe à extraire (doit correspondre à un nom de `group_dict`).
-#' @param output_filename (optionnel) Chemin vers un fichier `.csv` où sauvegarder les données du groupe extrait.
-#' Si `NULL`, aucune sauvegarde n'est effectuée.
+#' @param group_dict A named list containing \code{data.frame} objects, usually
+#'   resulting from a grouping or splitting operation.
+#' @param group_id Character string specifying the group identifier to extract.
+#'   It must match one of the names in \code{group_dict}.
+#' @param output_dir Optional character string specifying a directory where the
+#'   extracted group will be saved as a \code{.csv} file. If \code{NULL}, no file
+#'   is written.
 #'
-#' @return Le `data.frame` correspondant au groupe extrait.
+#' @return
+#' A \code{data.frame} corresponding to the extracted group.
 #'
+#' @details
+#' If \code{output_dir} is provided, the function creates the directory if it does
+#' not exist and saves the extracted group to a CSV file named
+#' \code{"group_<group_id>.csv"}.
+#'
+#' @examples
+#' \dontrun{
+#' group_of_os <- extract_group_objects(
+#'   group_summary,
+#'   group_id = "WD_ZM4351_SeedLot_Zea mays",
+#'   output_dir = "temp_files"
+#' )
+#' }
+#'
+#' @importFrom utils write.csv
 #' @export
-extract_group_objects <- function(group_dict, group_id, output_filename = NULL) {
+
+extract_group_objects <- function(group_dict, group_id, output_dir = NULL) {
   # Vérifie si le group_id existe dans les noms du dictionnaire
   if (group_id %in% names(group_dict)) {
     group_df <- group_dict[[group_id]]
 
-    if (!is.null(output_filename)) {
-      write.csv(group_df, output_filename, row.names = FALSE)
-      message(sprintf("✅ Group '%s' saved to %s", group_id, output_filename))
-    } else {
-      message(sprintf("ℹ️ Group '%s' extracted. No file was saved.", group_id))
+    # Save summary to CSV if filename provided
+    save_to_csv <- !is.null(output_dir)
+
+    if (save_to_csv) {
+      if (!dir.exists(output_dir)) {
+        dir.create(output_dir, recursive = TRUE)  # Create directory if it doesn't exist
+      }
+      csv_path <- file.path(output_dir, paste0("group_",group_id, ".csv"))
+
+
+      tryCatch({
+        write.csv(group_df, csv_path, row.names = FALSE)
+        message(sprintf("✅ Group '%s' saved to %s", group_id,  csv_path))
+      }, error = function(e) {
+        warning("WARNING: Failed to save group : ", e$message)
+      })
     }
 
     return(group_df)

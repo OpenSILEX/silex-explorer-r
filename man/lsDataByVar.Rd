@@ -2,39 +2,52 @@
 % Please edit documentation in R/lsDataByVar.R
 \name{lsDataByVar}
 \alias{lsDataByVar}
-\title{Retrieve data by variable from an experiment}
+\title{Retrieve Data by Variable from an Experiment}
 \usage{
 lsDataByVar(
   session,
   experiment_label,
-  variable_name = NULL,
-  output_dir = NULL,
-  limit = 500,
-  max_pages = 10,
-  obj_type = NULL,
-  save_to_file = TRUE
+  obj_type_label,
+  variable_names = NULL,
+  output_dir = NULL
 )
 }
 \arguments{
-\item{session}{An opensilex_connection object.}
+\item{session}{An opensilex_connection object obtained from \code{login()}.}
 
 \item{experiment_label}{Character, experiment label.}
 
-\item{variable_name}{Character or NULL, variable(s) to filter.}
+\item{obj_type_label}{Character, scientific object type label.}
 
-\item{output_dir}{Character or NULL, directory to save CSV files.}
+\item{variable_names}{Character vector or NULL. List of variable names to filter on (optional).}
 
-\item{limit}{Numeric, limit per page.}
-
-\item{max_pages}{Numeric, max pages to fetch.}
-
-\item{obj_type}{Character or NULL, scientific object type filter.}
-
-\item{save_to_file}{Logical, whether to save CSV files.}
+\item{output_dir}{Character string or NULL. Directory path to save CSV files (if NULL, files are not saved).}
 }
 \value{
-A list of data frames, one per variable.
+A named list of data frames, where each element corresponds to a variable.
 }
 \description{
-Retrieve data by variable from an experiment
+Retrieves data associated with specific variables from a given experiment in OpenSILEX.
+The function can filter by scientific object type and variable names, and optionally
+export results as CSV files (one per variable).
+}
+\examples{
+\dontrun{
+# Retrieve and save data by variable for experiment "ZA17" and object type "Plant"
+data_by_var <- lsDataByVar(session, "ZA17", "Plant",
+                           output_dir = "your_output_directory_here")
+
+# Retrieve data without saving to CSV
+data_by_var <- lsDataByVar(session, "ZA17", "Plant")
+print(data_by_var)
+
+# Retrieve and save data by variable for experiment "MAU17-PG" and object type "Plot"
+data_by_var <- lsDataByVar(session, "MAU17-PG", "Plot",
+                           output_dir = "your_output_directory_here")
+# Retrieve data for specific variables
+variable_names <- c("BERRY_DO280", "BER_K_HPLC")
+data_by_var <- lsDataByVar(session, "MAU17-PG", "Plot", variable_names,
+                           output_dir = "your_output_directory_here")
+}
+
 }

@@ -4,13 +4,7 @@
 \alias{lsFacilityByExp}
 \title{Retrieve facilities used in experiments}
 \usage{
-lsFacilityByExp(
-  session,
-  exp_label = NULL,
-  output_dir = NULL,
-  verbose = TRUE,
-  check_consistency = TRUE
-)
+lsFacilityByExp(session, exp_label = NULL, output_dir = NULL, verbose = TRUE)
 }
 \arguments{
 \item{session}{An opensilex_connection object.}
@@ -28,4 +22,26 @@ A tibble data frame of facilities by experiment.
 }
 \description{
 Retrieve facilities used in experiments
+}
+\examples{
+\dontrun{
+# Assuming session is already created by the login function
+
+# Example 1: List all facilities used in all experiments
+all_facilities <- lsFacilityByExp(session)
+print(all_facilities)
+
+# Example 2: List facilities used in a specific experiment (e.g. "ZA17")
+facilities_by_exp <- lsFacilityByExp(session, exp_label = "ZA17")
+print(facilities_by_exp)
+
+# Example 3: List facilities for an experiment and export results to a CSV file
+facilities_by_exp <- lsFacilityByExp(
+  session,
+  exp_label = "ZA17",
+  output_dir = "your_output_directory_here"
+)
+print(facilities_by_exp)
+}
+
 }

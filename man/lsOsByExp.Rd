@@ -17,28 +17,53 @@ lsOsByExp(
 )
 }
 \arguments{
-\item{session}{An opensilex_connection object.}
+\item{session}{An `opensilex_connection` object.}
 
-\item{experiment_label}{Character string, experiment label.}
+\item{experiment_label}{Character string. Label of the experiment to retrieve scientific objects from.}
 
-\item{obj_type}{Optional character to filter object types.}
+\item{obj_type}{Optional character string specifying the type of scientific object to filter (exact match).}
 
-\item{factor_levels}{Optional vector of factor levels to filter.}
+\item{factor_levels}{Optional character vector of factor-level filters. Each element should follow the format `"FactorName.Level"`.
+Multiple factors can be provided.}
 
-\item{germplasm_type}{Optional germplasm type filter.}
+\item{germplasm_type}{Optional character string specifying the germplasm type to filter (case-insensitive).}
 
-\item{germplasm_name}{Optional germplasm name filter.}
+\item{germplasm_name}{Optional character string specifying the germplasm name to filter (case-insensitive).
+Requires `germplasm_type` to be specified.}
 
-\item{output_dir}{Optional directory to save output CSV.}
+\item{output_dir}{Optional character string specifying a directory path where the output CSV file will be saved.
+If `NULL`, results are only displayed.}
 
 \item{verbose}{Logical, whether to print progress messages.}
 
 \item{check_consistency}{Logical, whether to check URI-label consistency.}
 }
 \value{
-Data frame of scientific objects matching criteria.
+A data frame containing scientific objects matching the specified filters.
 }
 \description{
 This function fetches scientific objects from an OpenSILEX session by experiment label,
-with filtering options.
+allowing filtering by object type, factor levels, and germplasm information.
+}
+\examples{
+\dontrun{
+# Assuming 'session' is already created using the login() function
+
+# Retrieve scientific objects for an experiment
+objects <- lsOsByExp(session, experiment_label = "ZA17")
+print(objects)
+
+# Filter by object type
+objects_type <- lsOsByExp(session, experiment_label = "ZA17", obj_type = "Plant")
+print(objects_type)
+
+# Filter by a factor level
+objects_factor <- lsOsByExp(session, experiment_label = "ZA17", factor_levels = c("Irrigation.WD"))
+print(objects_factor)
+
+# Filter by germplasm type and name
+objects_germplasm <- lsOsByExp(session, experiment_label = "ZA17",
+                               germplasm_type = "Variety", germplasm_name = "testVariety")
+print(objects_germplasm)
+}
 }

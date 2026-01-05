@@ -8,7 +8,7 @@
 #' @return A session token (or list) on success
 #' @export
 #'
-#' #' @examples
+#' @examples
 #' # Exemple d'utilisation de la fonction login
 #' session <- login(id = "ton_email@exemple.com",
 #'                  password = "ton_mot_de_passe",

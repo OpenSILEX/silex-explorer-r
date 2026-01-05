@@ -1,33 +1,56 @@
-#' Visualiser les données groupées par variable
+#' Visualize Grouped Scientific Data by Variable
 #'
-#' Cette fonction crée une série de graphiques temporels (un par variable) pour les objets scientifiques,
-#' avec des couleurs spécifiques par URI. Elle combine ensuite les graphiques en une seule figure à l'aide du package `patchwork`.
-#' Si un chemin est fourni, la visualisation est enregistrée dans un fichier.
+#' This function generates time-series plots for each variable of a group of scientific objects.
+#' Each object (identified by its URI) is displayed in a consistent color across all plots.
+#' The individual plots are then combined into a single figure using the \pkg{patchwork} package.
 #'
-#' @param df_variables Une liste de `tibble`, chaque élément représentant une variable sous forme de `data.frame`
-#' avec les colonnes `URI`, le nom de la variable, et `Date`.
-#' @param output_file (Optionnel) Chemin vers un fichier image (ex: `"output.png"`). Si `NULL` ou vide, la visualisation n'est pas enregistrée.
+#' If an output directory is provided, the combined visualization is automatically saved as a PDF
+#' file named \code{"visualisation_group_<group_id>.pdf"} in the specified directory. The PDF size
+#' is dynamically adjusted based on the number of variables to preserve readability.
 #'
-#' @return Aucun objet retourné. Affiche la figure combinée à l'écran et éventuellement sauvegarde le fichier.
+#' @param df_variables A named list of \code{tibble} objects. Each element represents a variable and must contain at least the columns \code{URI}, the variable values, and \code{Date}.
+#' @param group_id Character string identifying the group being visualized. This is used to name the output PDF.
+#' @param output_dir Optional character string specifying the directory where the visualization PDF will be saved.
+#'   If \code{NULL} or empty, the visualization is displayed but not saved.
+#'
+#' @return
+#' No object is returned. The combined visualization is displayed on screen and optionally saved as a PDF.
 #'
 #' @details
-#' - Les graphiques affichent les données dans le temps pour chaque URI, colorées selon une palette cohérente.
-#' - Le type de visualisation (points ou ligne) dépend de la densité et complétude des données.
-#' - Les légendes sont regroupées et affichées en bas.
+#' The function performs the following:
+#' \itemize{
+#'   \item Creates one time-series plot per variable.
+#'   \item Colors observations consistently by scientific object URI across all plots.
+#'   \item Chooses between points or lines based on data density and completeness.
+#'   \item Collects a shared legend at the bottom of the figure.
+#'   \item Combines all plots using \code{patchwork} into a single layout.
+#'   \item Saves the visualization as a PDF in \code{output_dir} if provided. The PDF width and height
+#'         are automatically computed based on the number of variables.
+#' }
+#'
+#' The output file is saved with the following pattern:
+#' \preformatted{
+#' output_dir/visualisation_group_<group_id>.pdf
+#' }
 #'
 #' @import ggplot2
-#' @importFrom dplyr filter arrange %>%
+#' @importFrom dplyr filter arrange pull %>%
 #' @importFrom tibble tibble
 #' @importFrom lubridate ddays
 #' @importFrom patchwork wrap_plots
-#' @importFrom readr write_csv
-#' @importFrom glue glue
 #' @importFrom scales hue_pal
 #' @importFrom tools toTitleCase
 #' @importFrom grid unit
-#' @importFrom graphics dev.size
+#' @importFrom grDevices dev.size
 #' @export
-visualise_group_data <- function(df_variables, output_file = NULL) {
+
+
+visualise_group_data <- function(df_variables,group_id, output_dir = NULL) {
+  # Vérifier si df_variables est vide ou contient uniquement des tibbles vides
+  if (length(df_variables) == 0 || all(sapply(df_variables, nrow) == 0)) {
+    message("ℹ️ Aucun donnée à visualiser pour le groupe '", group_id, "'.")
+    return(invisible(NULL))
+  }
   plots <- list()
   all_uris <- unique(unlist(lapply(df_variables, function(df) unique(df$URI))))
   palette_colors <- scales::hue_pal()(length(all_uris))
@@ -121,13 +144,41 @@ visualise_group_data <- function(df_variables, output_file = NULL) {
     theme(legend.position = "bottom") &
     guides(color = guide_legend(ncol = 2, override.aes = list(shape = 15, size = 4)))
 
-  if (!is.null(output_file) && output_file != "") {
-    plot_size <- dev.size("in")
-    ggsave(output_file, combined, width = plot_size[1], height = plot_size[2], dpi = 300, limitsize = FALSE)
-    message("✅ Data visualisation saved to: ", output_file)
-  } else {
-    message("ℹ️ Aucune sauvegarde effectuée (output_file non spécifié).")
+  if (!is.null(output_dir) && output_dir != "") {
+    # Create output directory if it does not exist
+    dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+    # Build output file path
+    output_file <- file.path(
+      output_dir,
+      paste0("visualisation_group_", group_id, ".pdf")
+    )
+
+    # Determine number of plots and layout
+    n_plots <- length(plots)
+    ncol <- 2
+    nrow <- ceiling(n_plots / ncol)
+
+    # Automatic sizing per plot
+    base_width <- 6   # inches per plot
+    base_height <- 4  # inches per plot
+    width <- base_width * ncol
+    height <- base_height * nrow
+
+    # Save PDF
+    ggsave(
+      filename = output_file,
+      plot = combined,
+      width = width,
+      height = height,
+      units = "in",
+      dpi = 300,
+      limitsize = FALSE
+    )
+
+    message("✅ Data visualization saved to: ", output_file)
   }
+
 
   print(combined)
 }

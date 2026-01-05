@@ -1,19 +1,48 @@
-#' Retrieve data by OS URI and variables
+#' Retrieve Data by Scientific Object URI and Experiment Variables
 #'
-#' Récupère les données scientifiques associées à une liste d'URIs d'objets scientifiques, en traitant les variables d'expérience.
+#' This function retrieves scientific data associated with a list of scientific
+#' object URIs while processing experiment-specific variables. Data are fetched
+#' in chunks and in parallel to improve performance, and the results are exported
+#' by variable to CSV files.
 #'
-#' @param session Un objet de connexion contenant les informations d'authentification et l'URL GraphQL.
-#' @param experience Un vecteur ou liste d'expériences à interroger.
-#' @param df_os DataFrame contenant au moins une colonne 'uri' listant les objets scientifiques à interroger.
-#' @param ls_var_exp Optionnel. DataFrame des variables par expérience. Si NULL ou vide, la fonction lsVarByExp sera appelée.
+#' @param session A connection object containing authentication information and
+#'   the GraphQL endpoint URL.
+#' @param experience A character string, vector, or list identifying the
+#'   experiment(s) to query.
+#' @param df_os A data frame containing at least a \code{uri} column listing the
+#'   scientific objects to query.
+#' @param ls_var_exp Optional data frame of variables by experiment. If
+#'   \code{NULL} or empty, the function \code{lsVarByExp()} is called to retrieve
+#'   the variables automatically.
+#' @param output_dir Optional character string specifying the directory where
+#'   variable-specific CSV files will be written. If \code{NULL}, no files are created.
 #'
-#' @return Aucune valeur retournée explicitement, les données sont exportées via export_data_by_variable_to_csv().
+#' @return
+#' No value is returned explicitly. Retrieved data are exported using
+#' \code{export_data_by_variable_to_csv()}.
+#'
+#' @details
+#' The function performs the following steps:
+#' \itemize{
+#'   \item Checks that \code{df_os} contains a \code{uri} column.
+#'   \item Retrieves or generates a unique experiment identifier using
+#'   \code{get_experiment_id()}.
+#'   \item Splits scientific object URIs into chunks to limit the number of IDs
+#'   per request.
+#'   \item Fetches data for each chunk in parallel using
+#'   \code{furrr::future_map()}, with error handling via
+#'   \code{purrr::safely()}.
+#'   \item Combines all retrieved data into a single data frame.
+#'   \item Exports the combined data by variable to CSV files when
+#'   \code{output_dir} is provided.
+#' }
 #'
 #' @importFrom purrr safely
 #' @importFrom furrr future_map
 #' @importFrom dplyr bind_rows
 #' @export
-get_data_by_os_uri_variable <- function(session, experience, df_os, ls_var_exp = NULL) {
+
+get_data_by_os_uri_variable <- function(session, experience, df_os, ls_var_exp = NULL,output_dir = NULL) {
   max_ids_per_request <- 40
 
   if (!"uri" %in% names(df_os)) {
@@ -26,36 +55,7 @@ get_data_by_os_uri_variable <- function(session, experience, df_os, ls_var_exp =
     ls_var_exp <- lsVarByExp(session, experience)
   }
 
-   label_query <- sprintf('
-    query {
-      Experiment(filter: {label: "%s"}, inferred: true) {
-        startDate
-      }
-    }', experience)
-
-  label_response <- httr::POST(
-    url = session$urlGraphql,
-    httr::add_headers(
-      Authorization = paste("Bearer", session$token),
-      "Content-Type" = "application/json"
-    ),
-    body = list(query = label_query),
-    encode = "json",
-    httr::timeout(60)
-  )
-
-  httr::stop_for_status(label_response)
-  label_result <- httr::content(label_response, as = "parsed")
-
-  if (length(label_result$data$Experiment) == 0) {
-    stop("No experiment found with label: ", experience)
-  }
-
-  exp_data <- label_result$data$Experiment[[1]]
-  start_date <- gsub("-", "_", substr(exp_data$startDate, 1, 10))
-  clean_label <- gsub("[^A-Za-z0-9]", "_", experience)
-  experiment_id <- paste0("EXP_", clean_label, "_", start_date)
-
+  experiment_id <- get_experiment_id(experience, session)
 
   os_uris <- df_os$uri
   chunks <- chunk_list(os_uris, max_ids_per_request)
@@ -73,6 +73,6 @@ get_data_by_os_uri_variable <- function(session, experience, df_os, ls_var_exp =
 
   all_data <- dplyr::bind_rows(results)
 
-  export_data_by_variable_to_csv(ls_var_exp, all_data)
+  export_data_by_variable_to_csv(ls_var_exp, all_data, output_dir=output_dir)
 }
 

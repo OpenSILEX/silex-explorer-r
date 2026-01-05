@@ -1,16 +1,19 @@
-#' Nettoyer un identifiant de groupe
+#' Clean a Group Identifier
 #'
-#' Supprime les suffixes \code{"_nan"} (non sensibles à la casse) à la fin d’un identifiant de groupe.
+#' Removes trailing \code{"_nan"} suffixes (case-insensitive) at the end of a
+#' group identifier.
 #'
-#' @param group_identifier Chaîne de caractères. Identifiant du groupe à nettoyer.
+#' @param group_identifier Character string. Group identifier to be cleaned.
 #'
-#' @return Une chaîne de caractères correspondant à l’identifiant nettoyé. Retourne une chaîne vide si tout a été supprimé.
+#' @return A character string corresponding to the cleaned identifier.
+#'   Returns an empty string if everything has been removed.
 #'
 #' @examples
 #' remove_trailing_nans_from_identifier("WD_ZM1289_nan")  # "WD_ZM1289"
 #' remove_trailing_nans_from_identifier("WW_123_nan_nan") # "WW_123"
 #'
 #' @export
+
 
 remove_trailing_nans_from_identifier <- function(group_identifier) {
   # Séparer l'identifiant en parties

@@ -31,3 +31,19 @@ Queries the OpenSILEX REST API to obtain variables used in a specified experimen
 returning details such as URI, name, entity, characteristic, method, and unit.
 Optionally saves results to CSV.
 }
+\examples{
+\dontrun{
+# Assuming session is already created by login function
+
+Example 1: Retrieve all variables having data (no filter)
+all_variables <- lsVarByExp(session)
+
+# Example 2: Retrieve variables for an experiment
+variables_by_exp <- lsVarByExp(session, experiment_label = "experiment_001")
+print(variables_by_exp)
+
+# Example 3: Retrieve variables and save to a specific output directory
+variables_by_exp_with_csv <- lsVarByExp(session, experiment_label = "experiment_002", output_dir = "/path/to/save")
+print(variables_by_exp_with_csv)
+}
+}

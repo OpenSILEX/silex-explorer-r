@@ -12,7 +12,7 @@
 #' @return A tibble with columns `uri`, `name`, `entity`, `characteristic`, `method`, and `unit`.
 #' @export
 #'
-#'  @examples
+#' @examples
 #' \dontrun{
 #' # Log in to OpenSILEX
 #' session <- login(id = "your_email@example.com",

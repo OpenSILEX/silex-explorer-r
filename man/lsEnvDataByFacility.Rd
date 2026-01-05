@@ -2,30 +2,100 @@
 % Please edit documentation in R/lsEnvDataByFacility.R
 \name{lsEnvDataByFacility}
 \alias{lsEnvDataByFacility}
-\title{Retrieve environmental data variables for a facility over an optional date range}
+\title{Retrieve environmental data for a facility with optional variable and date filters}
 \usage{
 lsEnvDataByFacility(
   session,
-  facility_uri,
+  facility_label,
   date_beginning = NULL,
   date_end = NULL,
-  csv_filepath = NULL
+  variable_names = NULL,
+  output_dir = NULL
 )
 }
 \arguments{
 \item{session}{An opensilex_connection object.}
 
-\item{facility_uri}{Character, URI of the facility.}
+\item{facility_label}{Character, label of the facility (e.g. "greenhouse 1").}
 
-\item{date_beginning}{Character or NULL, start date filter (YYYY-MM-DD).}
+\item{date_beginning}{Character or NULL, start date filter (YYYY-MM-DD or ISO format).}
 
-\item{date_end}{Character or NULL, end date filter (YYYY-MM-DD).}
+\item{date_end}{Character or NULL, end date filter (YYYY-MM-DD or ISO format).}
 
-\item{csv_filepath}{Character or NULL, path to save CSV file.}
+\item{variable_names}{Character vector or NULL, names of variables to filter
+(e.g. "air_temperature_thermocouple_degreeCelsius").}
+
+\item{output_dir}{Character or NULL, directory where CSV files will be saved
+(one CSV per variable).}
 }
 \value{
-A tibble data frame with environmental data.
+A named list of tibbles. Each list element corresponds to one variable URI
+  and contains a data frame with columns:
+  \itemize{
+    \item Date: measurement timestamp
+    \item Value: measured value
+    \item Device: associated device URI(s)
+  }
 }
 \description{
-Retrieve environmental data variables for a facility over an optional date range
+This function retrieves environmental measurements associated with a given facility.
+Results can be filtered by date range and by specific variable names. Data can optionally
+be exported as CSV files (one file per variable).
+}
+\examples{
+\dontrun{
+# Assuming session is already created using a login function
+
+# Example 1: Retrieve all environmental data for a facility
+env_data_all <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1"
+)
+print(env_data_all)
+
+# Example 2: Retrieve data for a specific variable
+variable_names <- c("air_temperature_thermocouple_degreeCelsius")
+env_data_var <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  variable_names = variable_names
+)
+print(env_data_var)
+
+# Example 3: Retrieve data with a start date filter
+env_data_start <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  date_beginning = "2017-04-16"
+)
+print(env_data_start)
+
+# Example 4: Retrieve data with an end date filter (ISO format)
+env_data_end <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  date_end = "2017-04-16T20:00:00.000Z"
+)
+print(env_data_end)
+
+# Example 5: Retrieve data for a variable with a date range
+env_data_range <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  variable_names = c("air_temperature_thermocouple_degreeCelsius"),
+  date_beginning = "2017-04-16",
+  date_end = "2017-04-18"
+)
+print(env_data_range)
+
+# Example 6: Retrieve data and export CSV files
+env_data_csv <- lsEnvDataByFacility(
+  session,
+  facility_label = "greenhouse 1",
+  variable_names = c("air_temperature_thermocouple_degreeCelsius"),
+  output_dir = "your_output_directory_here"
+)
+print(env_data_csv)
+}
+
 }
