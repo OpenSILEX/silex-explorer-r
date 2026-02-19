@@ -118,7 +118,7 @@
 ```R
 session <- login(
     id = "admin@opensilex.org",
-    password = Sys.getenv("OPENSILEX_PWD"),
+    password = "OPENSILEX_PWD",
     instance = "http://localhost:8080",
     urlGraphql = "http://localhost:4000/graphql"
 )
@@ -192,7 +192,7 @@ library(SilexExplorerR)
 # 1. Initialize session
 session <- login(
     id = Sys.getenv("OPENSILEX_USER"),
-    password = Sys.getenv("OPENSILEX_PWD"),
+    password = "OPENSILEX_PWD",
     instance = "http://localhost:8080",
     urlGraphql = "http://localhost:4000/graphql"
 )
