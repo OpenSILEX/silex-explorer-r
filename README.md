@@ -118,7 +118,7 @@
 ```R
 session <- login(
     id = "admin@opensilex.org",
-    password = Sys.getenv("OPENSILEX_PWD"),
+    password = "OPENSILEX_PWD",
     instance = "http://localhost:8080",
     urlGraphql = "http://localhost:4000/graphql"
 )
@@ -156,15 +156,29 @@ system("gcc --version")  # Ensure build tools are available
 ```
 
 ### Package Installation
-```R
 # Install devtools
-if (!require("devtools")) install.packages("devtools")
 
+```R
+if (!require("devtools")) install.packages("devtools")
+```
 # Install SilexExplorerR
+
+### 🔹 Option 1 — Install from GitLab (INRAE forge)
+
+```r
 devtools::install_git(
-    "https://forgemia.inra.fr/OpenSILEX/opensilex-graphql/package-r.git",
-    dependencies = TRUE,
-    build_vignettes = TRUE
+  "https://forge.inrae.fr/OpenSILEX/opensilex-graphql/silex-explorer-r.git",
+  dependencies = TRUE,
+  build_vignettes = TRUE
+)
+```
+
+### 🔹 Option 2 — Install from GitHub
+```r
+devtools::install_git(
+  "https://github.com/OpenSILEX/silex-explorer-r.git",
+  dependencies = TRUE,
+  build_vignettes = TRUE
 )
 ```
 
@@ -178,7 +192,7 @@ library(SilexExplorerR)
 # 1. Initialize session
 session <- login(
     id = Sys.getenv("OPENSILEX_USER"),
-    password = Sys.getenv("OPENSILEX_PWD"),
+    password = "OPENSILEX_PWD",
     instance = "http://localhost:8080",
     urlGraphql = "http://localhost:4000/graphql"
 )
@@ -187,25 +201,39 @@ session <- login(
 experiments <- lsExp(session)
 
 ```
+> For more examples and detailed usage of the available functions, please see the `examples` folder.
+
+> ⚠️  **Important Note:**  
+> For all functions where you filter using names or labels, the corresponding elements **must be loaded in advance** into the `uri_name` table.  
+> 
+> For example, if you want to filter the scientific objects of a specific experiment with label `"ZA17"` and object type `"Plant"`, you would normally write:  
+> 
+> ```r
+> scientific_objects_by_exp_type <- lsOsByExp(
+>     session, 
+>     experiment_label = "ZA17", 
+>     obj_type = "Plant"
+> )
+> ```  
+> 
+> Before doing this, you must first load the experiment and the object types to populate the `uri_name` table:  
+> 
+> ```r
+> # Load all experiments
+> all_experiments <- lsExp(session)
+> 
+> # Load object types for the specific experiment
+> os_types <- lsOsTypeByExp(session, experiment_label = "ZA17")
+> ```  
+> 
+> This ensures that all names and URIs required for filtering are available for the functions to work correctly.
+
 
 ## 📂 Project Structure
 
 ```plaintext
 opensilex-r-package/
 ├── R/                       # Source code
-│   ├── auth/               # Authentication
-│   │   └── login.R
-│   ├── experiment/         # Experiment management
-│   │   ├── lsExp.R
-│   │   ├── lsOsByExp.R
-│   │   └── lsVarByExp.R
-│   ├── facility/           # Facility operations
-│   │   ├── lsExpByFacility.R
-│   │   └── lsDeviceByFacility.R
-│   ├── scientific_object/  # Object management
-│   │   ├── lsMoveByOs.R
-│   │   └── lsDataByOs.R
-│   └── utils/             # Utility functions
 ├── tests/                  # Unit tests
 ├── vignettes/             # Extended documentation
 ├── examples/              # Usage examples
@@ -215,36 +243,6 @@ opensilex-r-package/
 └── README.md             # This file
 ```
 
-## 📖 Function Reference
-
-### Authentication
-| Function | Description | Parameters |
-|----------|-------------|------------|
-| `login()` | Initialize session | `id`, `password`, `instance`, `urlGraphql` |
-
-### Experiment Management
-| Function | Description | Parameters |
-|----------|-------------|------------|
-| `lsExp()` | List experiments | `session` |
-| `lsOsByExp()` | List objects | `session`, `experiment_uri` |
-| `lsVarByExp()` | List variables | `session`, `experiment_uri` |
-
-### Facility Operations
-| Function | Description | Parameters |
-|----------|-------------|------------|
-| `lsEnvDataByFacility()` | Environnemental data of facility | `session`, `facility_uri` |
-
-
-
-### Development Guidelines
-- Follow [tidyverse style guide](https://style.tidyverse.org/)
-- Add unit tests for new features
-- Update documentation
-- Maintain backward compatibility
-
-## 📄 License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) file.
 
 ## 🌟 Citation
 
