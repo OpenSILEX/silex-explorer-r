@@ -25,7 +25,8 @@ Imports:
     stringr,
     lubridate,
     rlang,
-    utils
+    utils,
+    data.table
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
