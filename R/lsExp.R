@@ -60,6 +60,7 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
       label
       startDate
       endDate
+      isPublic
       hasSpecies { label }
       hasProject { label }
       usesFacility { label }
@@ -106,6 +107,7 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
       tibble::tibble(
         id = exp$`_id`,
         label = exp$label %||% "",
+        isPublic = exp$isPublic %||% "",
         start_date = if (!is.null(exp$startDate)) as.character(exp$startDate) else "",
         end_date = if (!is.null(exp$endDate)) as.character(exp$endDate) else "",
         species = if (!is.null(exp$hasSpecies) && length(exp$hasSpecies) > 0) {

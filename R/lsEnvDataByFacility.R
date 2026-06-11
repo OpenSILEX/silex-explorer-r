@@ -107,7 +107,7 @@ lsEnvDataByFacility <- function(session,
     }
   }
 
-  # --- Step 1: Build date filter
+  # --- Step 1: Build filters
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -136,14 +136,49 @@ lsEnvDataByFacility <- function(session,
   }
 
   filter_input <- list(target = facility_uri)
+
+  operators <- list()
+
   if (length(date_filter) > 0) {
-    filter_input$`_operators` <- list(date = date_filter)
+    operators$date <- date_filter
+  }
+
+  if (!is.null(variable_names)) {
+    variable_uris <- purrr::map_chr(variable_names, function(var_name) {
+      uris <- getUrisFromName(var_name)
+
+      if (length(uris) > 1) {
+        warning(paste("Multiple URIs found for variable:", var_name, "the first one will be used"))
+        uris <- uris[1]
+      }
+
+      if (length(uris) == 0) {
+        warning(paste("No URI found for variable:", var_name))
+        return(NA_character_)
+      }
+
+      uris[1]
+    })
+
+    variable_uris <- unique(variable_uris[!is.na(variable_uris)])
+
+    if (length(variable_uris) == 0) {
+      warning("No valid URIs found for the provided variable names.")
+      return(list())
+    }
+
+    operators$variable <- list(`in` = variable_uris)
+  }
+
+  if (length(operators) > 0) {
+    filter_input$`_operators` <- operators
   }
 
   # Step 2: Query full data
   query_data <- '
-    query GetEnvironmentalData($filter: FilterFindManyDataInput) {
-      Data_findMany(filter: $filter) {
+  query GetEnvironmentalData($filter: FilterFindManyDataInput, $page: Int, $perPage: Int) {
+    Data_pagination(filter: $filter, page: $page, perPage: $perPage) {
+      items {
         variable
         value
         date
@@ -158,20 +193,55 @@ lsEnvDataByFacility <- function(session,
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        perPage
+      }
     }
-  '
+  }
+ '
 
-  response <- httr::POST(
-    url = session$urlGraphql,
-    body = list(query = query_data, variables = list(filter = filter_input)),
-    encode = "json",
-    httr::add_headers(Authorization = paste("Bearer", session$token))
-  )
+  per_page <- 10000
+  page <- 1
+  data_items <- list()
 
-  httr::stop_for_status(response)
-  result <- httr::content(response, as = "parsed")
+  repeat {
+    response <- httr::POST(
+      url = session$urlGraphql,
+      body = list(
+        query = query_data,
+        variables = list(
+          filter = filter_input,
+          page = page,
+          perPage = per_page
+        )
+      ),
+      encode = "json",
+      httr::add_headers(Authorization = paste("Bearer", session$token))
+    )
 
-  data_items <- result$data$Data_findMany
+    if (httr::http_error(response)) {
+      cat(httr::content(response, as = "text", encoding = "UTF-8"), "\n")
+      httr::stop_for_status(response)
+    }
+    result <- httr::content(response, as = "parsed")
+
+    pagination <- result$data$Data_pagination
+
+    if (is.null(pagination) || is.null(pagination$items) || length(pagination$items) == 0) {
+      break
+    }
+
+    data_items <- c(data_items, pagination$items)
+
+    message("Page ", page, " récupérée : ", length(pagination$items), " lignes")
+
+    if (!isTRUE(pagination$pageInfo$hasNextPage)) {
+      break
+    }
+
+    page <- page + 1
+  }
 
   if (is.null(data_items) || length(data_items) == 0) {
     warning("No environmental data found for the given parameters.")
@@ -202,45 +272,9 @@ lsEnvDataByFacility <- function(session,
     )
   })
 
-
-
-
   if (nrow(df_all) > 0) {
 
     split_data <- split(df_all, df_all$VariableURI)
-
-    #----------------------------------------------------------
-    #  Filter by variable_names (if provided)
-    #----------------------------------------------------------
-    variable_uris <- NULL  # Initialize variable_uris
-    if (!is.null(variable_names)) {
-      # Retrieve URIs for each variable name
-      variable_uris <- sapply(variable_names, function(var_name) {
-        uris <- getUrisFromName(var_name)
-        if (length(uris) > 1) {
-          warning(paste("Multiple URIs found for variable:", var_name, "the first one will be used"))
-          return(uris[1])
-        } else if (length(uris) == 0) {
-          warning(paste("No URI found for variable:", var_name))
-          return(NULL)
-        }
-        return(uris[1])
-      })
-      variable_uris <- variable_uris[!is.null(variable_uris)]  # Remove NULLs
-
-      if (length(variable_uris) == 0) {
-        warning("WARNING: No valid URIs found for the provided variable names.")
-        return(list())  # Return empty list if no valid URIs
-      }
-    }
-
-    if (length(variable_uris) > 0) {
-      split_data <- split_data[names(split_data) %in% variable_uris]
-      if (length(split_data) == 0) {
-        warning("WARNING: None of the provided variables were found in the data.")
-        return(list())  # Return empty list if no match
-      }
-    }
 
     #----------------------------------------------------------
     #  Export CSV (optional) + return list of dataframes
