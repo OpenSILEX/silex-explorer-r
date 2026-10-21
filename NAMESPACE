@@ -32,25 +32,31 @@ export(prepare_data_for_comparison)
 export(remove_trailing_nans_from_identifier)
 export(visualise_group_data)
 import(ggplot2)
-importFrom(dplyr,"%>%")
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_split)
-importFrom(dplyr,n)
-importFrom(dplyr,pull)
+importFrom(dplyr,
+  "%>%",
+  arrange,
+  bind_rows,
+  filter,
+  group_by,
+  group_split,
+  n,
+  pull
+)
 importFrom(furrr,future_map)
-importFrom(future,multisession)
-importFrom(future,plan)
-importFrom(future,sequential)
+importFrom(future,
+  multisession,
+  plan,
+  sequential
+)
 importFrom(glue,glue)
 importFrom(grDevices,dev.size)
 importFrom(grid,unit)
-importFrom(httr,POST)
-importFrom(httr,add_headers)
-importFrom(httr,content)
-importFrom(httr,status_code)
+importFrom(httr,
+  POST,
+  add_headers,
+  content,
+  status_code
+)
 importFrom(lubridate,ddays)
 importFrom(patchwork,wrap_plots)
 importFrom(purrr,safely)
@@ -58,5 +64,7 @@ importFrom(readr,write_csv)
 importFrom(scales,hue_pal)
 importFrom(tibble,tibble)
 importFrom(tools,toTitleCase)
-importFrom(utils,read.csv)
-importFrom(utils,write.csv)
+importFrom(utils,
+  read.csv,
+  write.csv
+)

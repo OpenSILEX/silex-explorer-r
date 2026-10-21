@@ -2,7 +2,7 @@
 % Please edit documentation in R/compare_groups_by_factor_level.R
 \name{compare_groups_by_factor_level}
 \alias{compare_groups_by_factor_level}
-\title{Compare deux groupes d'objets scientifiques selon un facteur donné}
+\title{Compare two groups of scientific objects based on a given factor}
 \usage{
 compare_groups_by_factor_level(
   session,
@@ -10,27 +10,40 @@ compare_groups_by_factor_level(
   experiment_id,
   group1_id,
   group2_id,
-  factor
+  factor,
+  output_dir = NULL
 )
 }
 \arguments{
-\item{session}{Session RSession d’accessibilité aux données (via API).}
+\item{session}{Session object providing access to the data API
+(authentication token and endpoint).}
 
-\item{group_dict}{Liste contenant les groupes sous forme de data.frames.}
+\item{group_dict}{Named list (dictionary) containing the groups as
+`data.frame`s of scientific objects. Group identifiers must correspond
+to the names of the list.}
 
-\item{experiment_id}{ID ou nom de l’expérience concernée.}
+\item{experiment_id}{Name or identifier of the experiment of interest.}
 
-\item{group1_id}{ID du premier groupe à comparer (doit exister dans `group_dict`).}
+\item{group1_id}{Identifier of the first group to compare
+(must exist in `group_dict`).}
 
-\item{group2_id}{ID du second groupe à comparer.}
+\item{group2_id}{Identifier of the second group to compare
+(must exist in `group_dict`).}
 
-\item{factor}{Le nom du facteur discriminant (ex: "genotype", "treatment").}
+\item{factor}{Name of the experimental factor used to discriminate the
+groups and on which the comparison is based
+(e.g. `"genotype"`, `"treatment"`).}
+
+\item{output_dir}{Optional path to a directory where generated comparison
+plots will be saved. If NULL, plots are only displayed.}
 }
 \value{
-Un `data.frame` tidy contenant les données combinées prêtes à être exploitées.
+A tidy `data.frame` combining data from both groups, ready for
+  downstream analysis and visualization.
 }
 \description{
-Cette fonction récupère les données pour deux groupes définis,
-prépare un tableau tidy, puis affiche les courbes de comparaison
-(trajectoires individuelles et moyennes ± écart-type).
+This function retrieves measurement data for two predefined groups of
+scientific objects, prepares a tidy data table, and then displays
+comparison plots including individual trajectories and group-level
+mean ± standard deviation over time.
 }

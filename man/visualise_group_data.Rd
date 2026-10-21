@@ -7,45 +7,39 @@
 visualise_group_data(df_variables, group_id, output_dir = NULL)
 }
 \arguments{
-\item{df_variables}{A named list of \code{tibble} objects, where each element
-represents a variable and contains at least the columns \code{URI}, the
-variable values, and \code{Date}.}
+\item{df_variables}{A named list of \code{tibble} objects. Each element represents a variable and must contain at least the columns \code{URI}, the variable values, and \code{Date}.}
 
-\item{group_id}{Character string identifying the group being visualized. This
-identifier is used to name the output PDF file.}
+\item{group_id}{Character string identifying the group being visualized. This is used to name the output PDF.}
 
-\item{output_dir}{Optional character string specifying the directory where the
-visualization PDF will be saved. If \code{NULL} or empty, the visualization
-is displayed but not saved.}
+\item{output_dir}{Optional character string specifying the directory where the visualization PDF will be saved.
+If \code{NULL} or empty, the visualization is displayed but not saved.}
 }
 \value{
-No object is returned. The combined visualization is displayed on screen and
-optionally saved to a PDF file.
+No object is returned. The combined visualization is displayed on screen and optionally saved as a PDF.
 }
 \description{
-This function creates a series of time-series plots (one per variable) for a
-group of scientific objects. Each scientific object (URI) is displayed using
-a consistent color across all plots. The individual plots are then combined
-into a single figure using the \pkg{patchwork} package.
+This function generates time-series plots for each variable of a group of scientific objects.
+Each object (identified by its URI) is displayed in a consistent color across all plots.
+The individual plots are then combined into a single figure using the \pkg{patchwork} package.
 }
 \details{
-If an output directory is provided, the combined visualization is saved as a
-PDF file named \code{"visualisation_group_<group_id>.pdf"} inside the specified
-directory.
+If an output directory is provided, the combined visualization is automatically saved as a PDF
+file named \code{"visualisation_group_<group_id>.pdf"} in the specified directory. The PDF size
+is dynamically adjusted based on the number of variables to preserve readability.
 
 
-The function performs the following steps:
+The function performs the following:
 \itemize{
-  \item Generates one time-series plot per variable.
+  \item Creates one time-series plot per variable.
   \item Colors observations consistently by scientific object URI across all plots.
-  \item Automatically chooses between points and lines depending on data density
-  and completeness.
-  \item Collects and displays a shared legend at the bottom of the figure.
-  \item Combines all plots into a single layout using \code{patchwork}.
-  \item Saves the visualization as a PDF file if \code{output_dir} is provided.
+  \item Chooses between points or lines based on data density and completeness.
+  \item Collects a shared legend at the bottom of the figure.
+  \item Combines all plots using \code{patchwork} into a single layout.
+  \item Saves the visualization as a PDF in \code{output_dir} if provided. The PDF width and height
+        are automatically computed based on the number of variables.
 }
 
-The output file is saved using the following pattern:
+The output file is saved with the following pattern:
 \preformatted{
 output_dir/visualisation_group_<group_id>.pdf
 }

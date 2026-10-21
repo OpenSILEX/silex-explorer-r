@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare_data_for_comparison.R
 \name{prepare_data_for_comparison}
 \alias{prepare_data_for_comparison}
-\title{Préparer les données tidy pour comparaison entre deux groupes}
+\title{Prepare tidy data for comparison between two groups}
 \usage{
 prepare_data_for_comparison(
   group_dict,
@@ -14,24 +14,51 @@ prepare_data_for_comparison(
 )
 }
 \arguments{
-\item{group_dict}{Liste nommée de groupes (`data.frame`), généralement issue d’un split par facteur.}
+\item{group_dict}{Named list (dictionary) where:
+\itemize{
+  \item names correspond to group identifiers;
+  \item each element is a `data.frame` containing the scientific objects
+    belonging to that group.
+}}
 
-\item{session}{Objet de session avec token et URL GraphQL pour les requêtes.}
+\item{session}{Session object containing the authentication token and
+GraphQL endpoint URL required for API queries.}
 
-\item{experiment_name}{Nom ou identifiant de l’expérience dans l’API.}
+\item{experiment_name}{Name or identifier of the experiment in the API.}
 
-\item{group1_id}{Identifiant du premier groupe (nom dans `group_dict`).}
+\item{group1_id}{Identifier of the first group (must match a name in
+`group_dict`).}
 
-\item{group2_id}{Identifiant du second groupe.}
+\item{group2_id}{Identifier of the second group (must match a name in
+`group_dict`).}
 
-\item{factor}{Nom de la colonne utilisée pour définir les groupes (ex. `"genotype"`).}
+\item{factor}{Name of the experimental factor used to define the groups
+and on which the comparison is performed (e.g. `"genotype"`,
+`"treatment"`).}
 }
 \value{
-Un `data.frame` tidy combinant les données des deux groupes, avec colonnes :
-`Date`, `URI`, `Groupe`, `factor`, `Variable`, `Valeur`.
+A tidy `data.frame` combining data from both groups, with the
+  following columns:
+  \describe{
+    \item{Date}{Measurement date}
+    \item{URI}{Scientific object identifier}
+    \item{Groupe}{Group label constructed from the factor and its value}
+    \item{factor}{Value of the factor used for the comparison}
+    \item{Variable}{Name of the measured variable}
+    \item{Valeur}{Numeric value of the measurement}
+  }
 }
 \description{
-Cette fonction extrait les données de deux groupes d’objets scientifiques,
-récupère leurs mesures, y ajoute les informations de groupe et de facteur,
-puis retourne un `data.frame` en format long (`tidy`) prêt pour visualisation ou analyse.
+This function extracts scientific objects belonging to two groups,
+retrieves their measured variables via the API, adds group and factor
+information, and combines everything into a tidy (long-format)
+`data.frame` ready for visualization or statistical analysis.
+}
+\details{
+The function assumes that:
+\itemize{
+  \item each group contains a single unique value for the comparison factor levels;
+  \item the same set of variables is available for both groups;
+  \item the retrieved data include `Date` and `URI` columns.
+}
 }

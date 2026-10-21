@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+temp_files/
+uri_name.csv
+trivy-report.html
+test_package.R
