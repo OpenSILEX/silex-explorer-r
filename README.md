@@ -75,6 +75,11 @@ install.packages("remotes")
 remotes::install_git(
   "https://forge.inrae.fr/OpenSILEX/opensilex-graphql/silex-explorer-r.git"
 )
+
+# With ssh key
+# remotes::install_git(
+#   "git@forge.inrae.fr:OpenSILEX/opensilex-graphql/silex-explorer-r.git"
+# ) 
 ```
 
 ### Install from GitHub
@@ -153,7 +158,7 @@ silex-explorer-r/
 ├── R/              # R source code
 ├── man/            # Generated function documentation
 ├── examples/       # Usage examples
-├── vignettes/      # Extended documentation
+├── documentation/      # Extended documentation
 ├── renv/           # Development environment configuration
 ├── DESCRIPTION     # Package metadata and dependencies
 ├── NAMESPACE       # Exports and imports
