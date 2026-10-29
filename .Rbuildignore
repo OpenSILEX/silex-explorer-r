@@ -2,6 +2,13 @@
 ^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.Rhistory$
+^\.RData$
+^\.Rprofile$
 ^temp_files$
+^test_package\.R$
+^uri_name\.csv$
+^trivy-report\.html$
+^trivy-html\.tpl$
 ^(.*/)?\.gitkeep$
 ^LICENSE\.md$

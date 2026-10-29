@@ -1,7 +1,7 @@
 #' Retrieve variables associated with a facility and optional date range
 #'
 #' @param session An opensilex_connection object.
-#' @param facility_uri Character, URI of the facility.
+#' @param facility_label Character string giving the facility label.
 #' @param date_beginning Character or NULL, start date filter (YYYY-MM-DD).
 #' @param date_end Character or NULL, end date filter (YYYY-MM-DD).
 #' @param output_dir Character or NULL, directory to save CSV file (optional).
@@ -179,7 +179,7 @@ lsVarByFacility <- function(session,
     )
   })
 
-  insertUri_Name(variable_info_df[, c("uri", "name")])
+  insertUriName(variable_info_df[, c("uri", "name")])
 
   # --- Step 4: Optional CSV output
   if (!is.null(output_dir)) {
@@ -191,8 +191,6 @@ lsVarByFacility <- function(session,
     file_out <- file.path(output_dir, paste0("env_var_by_fac_",facility_label,"_", timestamp, ".csv"))
     write.csv(variable_info_df, file_out, row.names = FALSE, fileEncoding = "UTF-8")
     if (verbose) message("Data saved to ", file_out)
-  } else if (verbose) {
-    print(facilities_df)
   }
 
   return(variable_info_df)

@@ -1,5 +1,3 @@
-
-
 #' List Experiments
 #'
 #' Retrieves a list of experiments from OpenSILEX with optional filtering.
@@ -99,8 +97,8 @@ lsExp <- function(session, Species = NULL, projet = NULL, date = NULL, output_di
       )
     })
 
-    # Call insertUri_Name to insert all URI-name pairs at once
-    insertUri_Name(all_uri_name_pairs)
+    # Call insertUriName to insert all URI-name pairs at once
+    insertUriName(all_uri_name_pairs)
 
     # Process results
     experiments_df <- purrr::map_df(result$data$Experiment, function(exp) {

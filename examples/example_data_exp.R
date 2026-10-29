@@ -1,5 +1,4 @@
-# Example script to test lsData function from the SilexExplorerR package
-
+# Example script to test getDataExp function from the SilexExplorerR package
 # Load the necessary package
 library(SilexExplorerR)
 
@@ -16,7 +15,7 @@ session <- login(
 # -------------------------------------------------------------------------
 
 
-ls_data <- lsData(
+ls_data <- getDataExp(
   session,
   experiment_uri = "http://your_experiment_uri",
   output_dir = "your_output_directory_here"
@@ -25,7 +24,7 @@ ls_data <- lsData(
 # -------------------------------------------------------------------------
 # Example 2: Retrieve all data without saving to CSV
 # -------------------------------------------------------------------------
-ls_data_no_csv <- lsData(
+ls_data_no_csv <- getDataExp(
   session,
   experiment_uri = "http://your_experiment_uri"
 )
@@ -37,7 +36,7 @@ print(ls_data_no_csv)
 # -------------------------------------------------------------------------
 variable_names <- c("supply_voltage_measurement_volt")
 
-ls_data_filtered <- lsData(
+ls_data_filtered <- getDataExp(
   session,
   experiment_uri = "http://your_experiment_uri",
   variable_names = variable_names,

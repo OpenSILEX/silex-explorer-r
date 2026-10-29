@@ -58,8 +58,7 @@ lsOsByExp <- function(session, experiment_label,
   `%||%` <- function(x, y) if (is.null(x)) y else x
 
   # Step 1: Get experiment id
-  experiment_id <- get_experiment_id(experiment_label, session)
-
+  experiment_id <- getExperimentId(experiment_label, session)
 
   # Step 2: Query scientific objects
   query <- sprintf('
@@ -262,7 +261,7 @@ lsOsByExp <- function(session, experiment_label,
 
 
   # URI-Name
-  insertUri_Name(df[, c("uri", "name")])
+  insertUriName(df[, c("uri", "name")])
 
 
   # Optional export

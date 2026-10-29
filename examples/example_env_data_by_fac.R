@@ -9,8 +9,8 @@ library(SilexExplorerR)
 session <- login(
   id = "your_email@example.com",
   password = "your_password",
-  instance = "http://138.102.159.36:8084",
-  urlGraphql = "http://138.102.159.37/graphql"
+  instance = "http://your_instance_url",
+  urlGraphql = "http://your_graphql_url"
 )
 
 # ----------------------------------------------------------
@@ -84,6 +84,6 @@ env_data_csv <- lsEnvDataByFacility(
   session,
   facility_label = "greenhouse 1",
   variable_names = c("air_temperature_thermocouple_degreeCelsius"),
-  output_dir = "/path/to/save"
+  output_dir = "your_output_directory_here"
 )
 print(env_data_csv)

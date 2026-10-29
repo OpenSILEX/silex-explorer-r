@@ -14,9 +14,13 @@ login(id, password, instance, urlGraphql, uri_csv = "uri_name.csv")
 \item{instance}{Base instance URL (e.g., http://localhost:8080)}
 
 \item{urlGraphql}{GraphQL URL endpoint}
+
+\item{uri_csv}{Character string specifying the path to the CSV file used
+for URI-name mappings. Defaults to \code{"uri_name.csv"}.}
 }
 \value{
-A session token (or list) on success
+An object of class \code{opensilex_connection} containing the
+  authentication token, REST and GraphQL endpoints, and URI mapping path.
 }
 \description{
 Login to OpenSILEX

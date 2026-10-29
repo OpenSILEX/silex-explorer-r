@@ -14,8 +14,6 @@ lsFacilityByExp(session, exp_label = NULL, output_dir = NULL, verbose = TRUE)
 \item{output_dir}{Character or NULL, directory to save CSV file (optional).}
 
 \item{verbose}{Logical, whether to print messages (default TRUE).}
-
-\item{check_consistency}{Logical, whether to check URI-Name consistency (default TRUE).}
 }
 \value{
 A tibble data frame of facilities by experiment.

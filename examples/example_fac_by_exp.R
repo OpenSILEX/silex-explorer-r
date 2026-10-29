@@ -6,8 +6,8 @@ library(SilexExplorerR)
 # Log in to OpenSILEX
 session <- login(id = "your_email@example.com",
                  password = "your_password",
-                 instance = "your_instance_url_here",
-                 urlGraphql = "your_graphql_url_here")
+                 instance = "http://your_instance_url",
+                 urlGraphql = "http://your_graphql_url")
 
 # Example 1: List all facilities used in experiments
 all_facilities <- lsFacilityByExp(session)

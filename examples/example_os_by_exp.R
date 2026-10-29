@@ -7,8 +7,8 @@ library(SilexExplorerR)
 session <- login(
   id = "your_email@example.com",
   password = "your_password",
-  instance = "http://138.102.159.36:8084",
-  urlGraphql = "http://138.102.159.37/graphql"
+  instance = "http://your_instance_url",
+  urlGraphql = "http://your_graphql_url"
 )
 
 # Example 1: Retrieve all scientific objects from an experiment
