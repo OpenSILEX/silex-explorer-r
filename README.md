@@ -3,7 +3,7 @@
 # SilexExplorerR
 ###  R Interface for OpenSILEX Platform
 
-[![R](https://img.shields.io/badge/R-%3E%3D%204.0.0-blue?style=flat-square&logo=r)](https://www.r-project.org/)
+[![R](https://img.shields.io/badge/R-%3E%3D%204.5.1-blue?style=flat-square&logo=r)](https://www.r-project.org/)
 [![OpenSILEX](https://img.shields.io/badge/OpenSILEX-Platform-green?style=flat-square)](https://opensilex.org/)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat-square)](https://opensilex.org/documentation)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/OpenSILEX/silex-explorer-r)
