@@ -1,14 +1,20 @@
-# Exemple d'utilisation de la fonction login avec l'instance demo
+# Example: Log in to an OpenSILEX instance
 
-# Spécifier les informations de connexion
-id <- "ton_email@exemple.com"
-password <- "ton_mot_de_passe"
-instance <- "http://138.102.159.36:8084"
-urlGraphql <- "http://138.102.159.37/graphql"
+library(SilexExplorerR)
 
-# Appeler la fonction login
-session <- login(id = id, password = password, instance = instance, urlGraphql = urlGraphql)
+# Specify connection information
+id <- "your_email@example.com"
+password <- "your_password"
+instance <- "http://your_instance_url"
+urlGraphql <- "http://your_graphql_url"
 
-# Afficher le token pour vérifier la connexion
-print(session$token)
+# Log in
+session <- login(
+  id = id,
+  password = password,
+  instance = instance,
+  urlGraphql = urlGraphql
+)
 
+# Check the connection object
+print(session)

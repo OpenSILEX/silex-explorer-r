@@ -16,6 +16,8 @@ lsVarByFacility(
 \arguments{
 \item{session}{An opensilex_connection object.}
 
+\item{facility_label}{Character string giving the facility label.}
+
 \item{date_beginning}{Character or NULL, start date filter (YYYY-MM-DD).}
 
 \item{date_end}{Character or NULL, end date filter (YYYY-MM-DD).}
@@ -23,8 +25,6 @@ lsVarByFacility(
 \item{output_dir}{Character or NULL, directory to save CSV file (optional).}
 
 \item{verbose}{Logical, whether to print messages (default TRUE).}
-
-\item{facility_uri}{Character, URI of the facility.}
 }
 \value{
 A tibble data frame with variable details.

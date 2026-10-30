@@ -4,8 +4,11 @@
 #' @param password Your password
 #' @param instance Base instance URL (e.g., http://localhost:8080)
 #' @param urlGraphql GraphQL URL endpoint
+#' @param uri_csv Character string specifying the path to the CSV file used
+#'   for URI-name mappings. Defaults to \code{"uri_name.csv"}.
 #'
-#' @return A session token (or list) on success
+#' @return An object of class \code{opensilex_connection} containing the
+#'   authentication token, REST and GraphQL endpoints, and URI mapping path.
 #' @export
 #'
 #' @examples

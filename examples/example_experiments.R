@@ -6,11 +6,11 @@ library(SilexExplorerR)
 # Log in to OpenSILEX
 session <- login(id = "your_email@example.com",
                  password = "your_password",
-                 instance = "http://138.102.159.36:8084",
-                 urlGraphql = "http://138.102.159.37/graphql")
+                 instance = "http://your_instance_url",
+                 urlGraphql = "http://your_graphql_url")
 
 # Example 1: List all experiments and save to a CSV file
-all_experiments <- lsExp(session, output_dir = "/chemin")
+all_experiments <- lsExp(session, output_dir = "your_output_directory_here")
 print(all_experiments)
 
 # Example 2: List experiments active on a specific date (2025-01-10)

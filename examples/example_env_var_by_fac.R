@@ -7,8 +7,8 @@ library(SilexExplorerR)
 session <- login(
   id = "your_email@example.com",
   password = "your_password",
-  instance = "http://138.102.159.36:8084",
-  urlGraphql = "http://138.102.159.37/graphql"
+  instance = "http://your_instance_url",
+  urlGraphql = "http://your_graphql_url"
 )
 
 # Example 1: Retrieve variables for a facility
@@ -19,8 +19,8 @@ print(variables_by_facility)
 variables_by_facility_csv <- lsVarByFacility(
   session,
   facility_label = "greenhouse 1",
-  output_dir = "/path/to/save"
-)
+  output_dir = "your_output_directory_here"
+  )
 print(variables_by_facility_csv)
 
 # Example 3: Retrieve variables for a facility with a start date filter

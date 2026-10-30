@@ -95,7 +95,7 @@ lsVarByExp <- function(session,
         )
       })
 
-      insertUri_Name(variables_df[, c("uri", "name")])
+      insertUriName(variables_df[, c("uri", "name")])
 
       # Optional CSV export
       if (!is.null(output_dir)) {

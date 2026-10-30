@@ -1,35 +1,31 @@
 <div align="center">
 
 # SilexExplorerR
-###  R Interface for OpenSILEX Platform
 
 [![R](https://img.shields.io/badge/R-%3E%3D%204.5.1-blue?style=flat-square&logo=r)](https://www.r-project.org/)
 [![OpenSILEX](https://img.shields.io/badge/OpenSILEX-Platform-green?style=flat-square)](https://opensilex.org/)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat-square)](https://opensilex.org/documentation)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/OpenSILEX/silex-explorer-r)
 
-[Documentation](https://opensilex.org/documentation) • 
-[Installation Guide](#️-installation) • 
-[Quick Start](#-quick-start) • 
-[Examples](./examples) • 
-[Contributing](#-contributing)
+[Installation](#installation) •
+[Quick Start](#quick-start) •
+[Contributing](#contributing)
+
 ---
 
 </div>
 
 ## 📚 Overview
 
-**SilexExplorerR** is an R interface designed for seamless interaction with OpenSILEX platforms, enabling researchers to efficiently manage and analyze scientific experimental data. This package provides comprehensive tools for:
+**SilexExplorerR** is an R package designed to facilitate access to, exploration, and visualization of data from OpenSILEX instances.
 
-- 🧪 Experimental data management
-- 📊 Data visualization and analysis
-- 🌱 Phenotypic data processing
-- 🌡️ Environmental data collection
-- 📈 Time-series analysis
-- 🔍 Advanced filtering capabilities
+It provides functions to authenticate to an OpenSILEX instance and retrieve experiments, scientific objects, variables, facilities, devices, movements, environmental data, and experimental data.
+
+The package relies on **SilexExplorer**, a GraphQL API for accessing and querying OpenSILEX data, while also interacting with OpenSILEX REST services when required.
+
+SilexExplorerR also provides URI-name mapping to simplify data exploration using labels, optional CSV export, and visualization tools for exploring and comparing scientific data.
 
 ## 🎯 Key Features
-## **Features**
+
 - **User Authentication**:   
   The `login` function allows secure authentication to an OpenSILEX instance and facilitates seamless interaction with its REST and GraphQL services by:  
   - Providing a token-based authentication mechanism.  
@@ -37,173 +33,98 @@
   - Preparing headers for secure and efficient API communication.  
   - Supporting custom ports and flexible server setups.  
  
-- **Experiment Retrieval and Filtering**:   
+- **Experiment Exploration**:   
   The `lsExp` function allows you to retrieve and filter experiments from an OpenSILEX instance using a GraphQL query. Key features include:  
-  - Filtering experiments by species_uri, project_uri, date,species_name or project name.    
-  - Returning results as a pandas DataFrame. 
+  - Filtering experiments by species, project. 
   - Exporting filtered results to a CSV file for further analysis.  
 
-- **Scientific Object Types Retrieval**:    
-  The `lsOsByExp` function retrieves all scientific object types associated with a specific experiment from an OpenSILEX instance. Key features include:   
-  - Filtering scientific object types by experiment URI.  
-  - Returning results, including URIs and namesas,as a pandas DataFrame.  
-  - Exporting results, to a CSV file.  
+- **Scientific Object Exploration**:    
+  Retrieve scientific object types and scientific objects associated with experiments using `lsOsTypeByExp()` and `lsOsByExp()`.
 
-- **Factors and Factor Levels Retrieval** :   
-  The `lsFlByFactor` function retrieves all factors and their associated levels for a given experiment. Key features include:  
-  - Retrieving factors and their levels using GraphQL queries.  
-  - Storing the retrieved data, including factor URIs and level URIs, in a CSV file.  
-  - Returning the results as a pandas DataFrame for further analysis or processing.  
+- **Variables and Experimental Data**  
+  Explore variables associated with experiments and retrieve experimental data using functions such as `lsVarByExp()`, `getDataExp()`, and `getDataByVariable()`.
 
-- **Variables Retrieval by Experiment**:   
-  The `lsVarByExp` function retrieves all variables for a given experiment. Key features include:  
-  - Fetching variables and their associated metadata (e.g., entity, characteristic, method, and unit) for a specified experiment.  
-  - Saving the retrieved data to a CSV file for further analysis.  
-  - Returning the variables as a pandas DataFrame.   
+- **Facilities, Devices, and Environmental Data**  
+  Explore facilities, devices, environmental variables, and environmental measurements using functions such as `lsFacilityByExp()`, `lsDevicesByFacility()`, `lsVarByFacility()`, `lsEnvDataByFacility()`, and `lsEnvDataByDevice()`.
 
-- **Scientific Objects Retrieval by Experiment**:   
-  The `lsOsByExp` function retrieves scientific objects and their associated details for a given experiment and object type. Key features include:  
-  - Dynamic filtering for factor levels and germplasm (both by uri and name).  
-  - Supporting GraphQL queries to fetch detailed information about the scientific objects, including factors and germplasm data.  
-  - Saving the retrieved data to a CSV file for further analysis.  
-  - Returning the data as a pandas DataFrame, with optional filters applied for factor levels and germplasm.
+- **Scientific Object Movements**  
+  Retrieve movement information associated with scientific objects using `lsMoveByOs()`.
 
-- **Data Retrieval by Variable**:   
-  The `lsDataByVar` function retrieves data associated with scientific objects for a specified experiment and object type. Key features include:  
-  - Supports optional filtering by factor levels and germplasm.  
-  - Extracts data such as target, variable, value, and date for each scientific object.  
-  - Organizes the extracted data by variable and exports each variable's data to separate CSV files.  
-  - Returns a dictionary where keys are variable names and values are DataFrames containing the associated data.  
-  - The data can be filtered based on a provided list of variables (e.g., sensor readings, measurements).  
-  - Saves the CSV files in the `temp_files` directory.
+- **URI-Name Mapping**  
+  Manage mappings between OpenSILEX URIs and human-readable labels to simplify data exploration and filtering. 
+  
+- **Data Visualization**  
+  Explore and compare scientific data using the visualization and grouping utilities provided by the package.
 
-- **Environmental Variables by Facility**:   
-  The `lsVarByFacility` function retrieves detailed environmental variable information linked to a facility. Key features include:  
-  - Allows filtering by a specific date range (optional).  
-  - Fetches a list of unique variables associated with the facility for the given date range.  
-  - Retrieves detailed information for each variable (e.g., entity, characteristic, method, unit).  
-  - Saves the variable details into a CSV file (default: `facility_env_var.csv`).  
-  - Returns the variable details as a DataFrame. 
-
-- **Retrieve and Export Environmental Data by Facility**:   
-  The `lsEnvironmentalDataByFacility` function fetches environmental data for a specific facility within a given date range. Key features include:  
-  - Retrieves environmental data and exports it to CSV files, organized by variable.  
-  - Allows filtering by a list of environmental variables (optional). If none provided, variables are fetched using `get_variable_by_facility`.  
-  - Supports flexible date filtering (defaulting to today's date if no dates are provided).  
-  - The data is saved as separate CSV files for each variable, with a customizable prefix.  
-  - Returns a dictionary where keys are variable names and values are corresponding DataFrames. 
-
-- **Retrieve and Export Devices by Facility**:   
-  The `lsDeviceByFacility` function fetches devices associated with a specific facility using pagination. Key features include:  
-  - Retrieves devices data for a given facility with pagination support.  
-  - Each device is represented with its URI, type, and name. 
-  - Saves the retrieved devices data to a CSV file.  
-  - Returns a list of dictionaries containing device details.  
-
-- **Retrieve Measured Data by Device**:   
-  The `lsDatabyDevice` function retrieves measured data associated with a specific device and exports it to a CSV file. Key features include:  
-  - Fetches measured data for a device based on a specified date range (optional).  
-  - Data includes device URI, target, value, variable, and measurement date.  
-  - Saves the data to a CSV file, with a customizable filename.  
-  - Returns the data as a Pandas DataFrame.  
-
-- **Retrieve and Export Moves for a Scientific Object**:  
-  The `lsMoveByOs` function retrieves the movement history of a scientific object and exports it to a CSV file. Key features include:  
-  - Retrieves moves based on the object's URI, experiment, and optional date range.  
-  - The moves include information about the "from" and "to" locations and the start and end times of each move.  
-  - Generates a CSV file with columns: From, To, HasBeginning, and HasEnd.  
-  - Returns a list of moves, each containing the relevant details.  
-
-### 🔐 Authentication System
-```R
-session <- login(
-    id = "admin@opensilex.org",
-    password = "OPENSILEX_PWD",
-    instance = "http://localhost:8080",
-    urlGraphql = "http://localhost:4000/graphql"
-)
-```
-- Secure token-based authentication
-- Dynamic endpoint configuration
-- Session management
-- Custom port support
-
-### 🧪 Experiment Management
-```R
-# List all experiments
-experiments <- lsExp(session)
-
-# List experiments active on a specific date
-active_experiments <- lsExp(session, date = "2025-01-10")
-print(active_experiments)
- 
-```
-- Comprehensive experiment listing
-- Advanced filtering options
-- Data frame output format
-- Integrated facility mapping
-
+- **CSV Export**  
+  Optionally export retrieved data to CSV files for further analysis and reuse.
 
 ## ⚙️ Installation
 
 ### Prerequisites
-```R
-# Check R version (requires >= 4.0.0)
-R.version.string
+SilexExplorerR requires **R >= 4.1.0**.
 
-# Install required system dependencies
-system("gcc --version")  # Ensure build tools are available
-```
+### Install from the INRAE forge
 
-### Package Installation
-# Install devtools
-
-```R
-if (!require("devtools")) install.packages("devtools")
-```
-# Install SilexExplorerR
-
-### 🔹 Option 1 — Install from GitLab (INRAE forge)
 
 ```r
-devtools::install_git(
-  "https://forge.inrae.fr/OpenSILEX/opensilex-graphql/silex-explorer-r.git",
-  dependencies = TRUE,
-  build_vignettes = TRUE
+install.packages("remotes")
+
+remotes::install_git(
+  "https://forge.inrae.fr/OpenSILEX/opensilex-graphql/silex-explorer-r.git"
+)
+
+# With ssh key
+# remotes::install_git(
+#   "git@forge.inrae.fr:OpenSILEX/opensilex-graphql/silex-explorer-r.git"
+# ) 
+```
+
+### Install from GitHub
+```r
+install.packages("remotes")
+
+remotes::install_github(
+  "OpenSILEX/silex-explorer-r"
 )
 ```
 
-### 🔹 Option 2 — Install from GitHub
+Once installed, load the package with:
+
 ```r
-devtools::install_git(
-  "https://github.com/OpenSILEX/silex-explorer-r.git",
-  dependencies = TRUE,
-  build_vignettes = TRUE
-)
+library(SilexExplorerR)
 ```
 
 ## 🚀 Quick Start
 
-### Basic Workflow
-```R
+### 1. Connect to OpenSILEX
+
+Use `login()` to authenticate to an OpenSILEX instance and configure access to the SilexExplorer GraphQL API.
+
+```r
 library(SilexExplorerR)
 
-
-# 1. Initialize session
 session <- login(
-    id = Sys.getenv("OPENSILEX_USER"),
-    password = "OPENSILEX_PWD",
-    instance = "http://localhost:8080",
-    urlGraphql = "http://localhost:4000/graphql"
+  id = "your_email@example.com",
+  password = "your_password",
+  instance = "http://your_opensilex_instance",
+  urlGraphql = "http://your_silexexplorer_graphql_endpoint"
 )
-
-# 2. Retrieve experiments
-experiments <- lsExp(session)
-
 ```
-> For more examples and detailed usage of the available functions, please see the `examples` folder.
+### 2. Explore Experiments
 
-> ⚠️  **Important Note:**  
+Retrieve the experiments available in the connected OpenSILEX instance:
+
+```r
+experiments <- lsExp(session)
+```
+
+You can also filter experiments by species, project, or date.
+
+> For more detailed workflows and usage examples, see the [`examples`](./examples) directory
+
+> ⚠️  **Important:**  
+
 > For all functions where you filter using names or labels, the corresponding elements **must be loaded in advance** into the `uri_name` table.  
 > 
 > For example, if you want to filter the scientific objects of a specific experiment with label `"ZA17"` and object type `"Plant"`, you would normally write:  
@@ -228,57 +149,44 @@ experiments <- lsExp(session)
 > 
 > This ensures that all names and URIs required for filtering are available for the functions to work correctly.
 
-
 ## 📂 Project Structure
 
-```plaintext
-opensilex-r-package/
-├── R/                       # Source code
-├── tests/                  # Unit tests
-├── vignettes/             # Extended documentation
-├── examples/              # Usage examples
-├── man/                   # Function documentation
-├── DESCRIPTION            # Package metadata
-├── NAMESPACE             # Export declarations
-└── README.md             # This file
+```text
+silex-explorer-r/
+├── R/              # R source code
+├── man/            # Generated function documentation
+├── examples/       # Usage examples
+├── documentation/      # Extended documentation
+├── renv/           # Development environment configuration
+├── DESCRIPTION     # Package metadata and dependencies
+├── NAMESPACE       # Exports and imports
+├── renv.lock       # Reproducible development dependencies
+└── README.md       # Package overview and usage guide
 ```
 
+The `man/` documentation and `NAMESPACE` file are generated from the Roxygen documentation contained in the source files.
 
-## 🌟 Citation
-
-```bibtex
-@software{SilexExplorerR2024,
-    title = {SilexExplorerR: Advanced R Interface for OpenSILEX Platform},
-    author = {OpenSILEX Team},
-    year = {2024},
-    url = {https://forgemia.inra.fr/OpenSILEX/opensilex-graphql}
-}
-```
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+Contributions are welcome.
 
-1. Fork the repository
-2. Create a feature branch:
-```bash
-git checkout -b feature/amazing-feature
-```
-3. Make your changes
-4. Run tests:
-```R
-devtools::test()
-```
-5. Submit a Pull Request
+To contribute:
 
+1. Fork or clone the repository.
+2. Create a dedicated branch for your changes.
+3. Implement and document your changes.
+4. Check that the package builds correctly.
+5. Submit a merge request or pull request.
 
+Please keep function naming, documentation, and coding conventions consistent with the existing package.
 
 
 ---
 
 <div align="center">
 
-Made with ❤️ by the OpenSILEX Team
+Developed by the OpenSILEX Team
 
-[↑ Back to Top](#SilexExplorerR)
+[↑ Back to Top](#silexexplorerr)
 
 </div>

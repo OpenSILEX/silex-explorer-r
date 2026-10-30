@@ -4,7 +4,7 @@
 #' @param exp_label Character or NULL, experiment label filter (optional).
 #' @param output_dir Character or NULL, directory to save CSV file (optional).
 #' @param verbose Logical, whether to print messages (default TRUE).
-#' @param check_consistency Logical, whether to check URI-Name consistency (default TRUE).
+
 #' @return A tibble data frame of facilities by experiment.
 #' @examples
 #' \dontrun{
@@ -88,7 +88,7 @@ lsFacilityByExp <- function(session,
   if (nrow(facilities_df) > 0) {
     facilities_for_mapping <- facilities_df %>%
       dplyr::rename(uri = facility_id, name = facility_label)
-    insertUri_Name(facilities_for_mapping)
+    insertUriName(facilities_for_mapping)
     if (verbose) message("Facilities successfully inserted into uri_name mapping.")
   }
   if (nrow(facilities_df) == 0) {

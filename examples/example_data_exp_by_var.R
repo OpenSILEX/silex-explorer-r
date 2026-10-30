@@ -1,4 +1,4 @@
-# Example script to test lsDataByVar function from the SilexExplorerR package
+# Example script to test getDataByVariable function from the SilexExplorerR package
 
 # Load the necessary package
 library(SilexExplorerR)
@@ -7,14 +7,14 @@ library(SilexExplorerR)
 session <- login(
   id = "your_email@example.com",
   password = "your_password",
-  instance = "http://138.102.159.36:8084",
-  urlGraphql = "http://138.102.159.37/graphql"
+  instance = "http://your_instance_url",
+  urlGraphql = "http://your_graphql_url"
 )
 
 # -------------------------------------------------------------------------
 # Example 1: Retrieve data for all variables for an experiment and save to CSV
 # -------------------------------------------------------------------------
-data_by_var <- lsDataByVar(
+data_by_var <- getDataByVariable(
   session,
   experiment_label = "ZA17",
   obj_type_label = "Plant",
@@ -25,7 +25,7 @@ print(data_by_var)
 # -------------------------------------------------------------------------
 # Example 2: Retrieve data by variable for an experiment (without saving)
 # -------------------------------------------------------------------------
-data_by_var_no_csv <- lsDataByVar(
+data_by_var_no_csv <- getDataByVariable(
   session,
   experiment_label = "ZA17",
   obj_type_label = "Plant"
@@ -38,13 +38,12 @@ print(data_by_var_no_csv)
 # -------------------------------------------------------------------------
 variable_names <- c("BERRY_DO280", "BER_K_HPLC")
 
-data_by_var_filtered <- lsDataByVar(
+data_by_var_filtered <- getDataByVariable(
   session,
   experiment_label = "MAU17-PG",
   obj_type_label = "Plot",
   variable_names = variable_names,
-  output_dir = "/home/abidri/Bureau/packageR/silex-explorer-r/temp_files"
-)
+  output_dir = "your_output_directory_here")
 print(data_by_var_filtered)
 
 
